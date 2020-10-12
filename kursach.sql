@@ -918,8 +918,202 @@ END
 $body$ LANGUAGE plpgsql STABLE;
 
 /*
-*это наброски того, что должны делать функции по выборке из отдельных таблиц
+*процедуры для работников
 */
-SELECT * FROM coloring_process AS cp WHERE cp.ID = 4;
+CREATE OR REPLACE PROCEDURE add_storyboard_artist(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO storyboard_artists(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+END
+$$;
 
-JOIN get_main_process_info(cp.MAIN_PROCESS_ID) USING(MAIN_PROCESS_ID)
+CREATE OR REPLACE PROCEDURE add_producer(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT,
+    role PRODUCER_ROLES
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO producers(MAIN_WORKER_ID, ROLE) VALUES(currval('workers_main_worker_id_seq'), role);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE add_audio_specialist(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO audio_specialist(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE add_digitizer(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO digitizers(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE add_smoothing_specialist(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO smoothing_specialist(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE add_art_director(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO art_director(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE add_screenwriter(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT,
+    films_number INTEGER,
+    genres VARCHAR[]
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO screenwriters(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(currval('workers_main_worker_id_seq'), films_number, genres);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE add_regisseur(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT,
+    films_number INTEGER,
+    genres VARCHAR[]
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO regisseurs(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(currval('workers_main_worker_id_seq'), films_number, genres);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE add_roles_designer(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO roles_designers(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE add_recording_actor(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT,
+    position RECORDING_ACTORS_POSITIONS
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO recording_actors(MAIN_WORKER_ID, POSITION) VALUES(currval('workers_main_worker_id_seq'), position);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE add_editor(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT,
+    genres VARCHAR[],
+    position EDITOR_POSITIONS
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO editors(MAIN_WORKER_ID, GENRES, POSITION) VALUES(currval('workers_main_worker_id_seq'), genres, position);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE add_artist(
+    name VARCHAR,
+    second_name VARCHAR,
+    gender VARCHAR,
+    age INTEGER,
+    place_of_birth TEXT,
+    artist_type ARTIST_TYPES,
+    using_technology USING_TECHNOLOGIES
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
+    INSERT INTO artists(MAIN_WORKER_ID, ARTIST_TYPE, USING_TECHNOLOGY) VALUES(currval('workers_main_worker_id_seq'), artist_type, using_technology);
+END
+$$;
+
+/*
+*процедуры для процессов
+*/
+CREATE OR REPLACE PROCEDURE create_storyboard_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE,
+    frame_number INTEGER
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO storyboard_process(MAIN_PROCESS_ID, FRAME_NUMBER) VALUES(currval('processes_main_process_id_seq'), frame_number);
+END
+$$;
