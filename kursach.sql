@@ -1,5 +1,5 @@
 CREATE TYPE PRODUCER_ROLES AS ENUM ('Продюсер', 'Исполнительный продюсер', 'Сопродюсер', 'Ассоциированный продюсер', 
-'Ассистирующий продюсер', 'Линейный продюсер', 'Административный продюсер', 'Креативный продюсер', 'Информационный продюсер');
+ 'Ассистирующий продюсер', 'Линейный продюсер', 'Административный продюсер', 'Креативный продюсер', 'Информационный продюсер');
 CREATE TYPE RECORDING_ACTOR_POSITIONS AS ENUM ('Дубляж', 'Озвучка ролей', 'Запись музыки');
 CREATE TYPE EDITOR_POSITIONS AS ENUM ('Литературный редактор', 'Технический редактор' , 'Художественный редактор', 'Главный редактор');
 CREATE TYPE ARTIST_TYPES AS ENUM ('Худ. по персонажам', 'Худ. по цвету', ' Худ. по фону', 'Худ. по анимации', 'Худ. по раскраске',
@@ -18,10 +18,6 @@ CREATE TYPE ABILITY_TYPES AS ENUM ('Атака', 'Защита', 'Хилка', '
 CREATE TYPE USING_TECHNOLOGIES AS ENUM ('Рисунки', 'Куклы', 'Трёхмерная графика');
 CREATE TYPE ARTIFACT_TYPES AS ENUM ();
 CREATE TYPE EFFECT_LEVELS AS ENUM('AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC', 'CC', 'C');
--- CREATE TYPE PROCESS_NAMES AS ENUM ('storyboard_process', 'adevertising_process', 'adding_sound_process', 'digitization_process', 'smoothing_process',
---  'revisions_process', 'coloring_process', 'animation_process', 'adding_effect_process', 'location_drawing_process', 'battle_drawing_process', 'character_drawing_process',
---  'character_select_process', 'voice_acting_process', 'ability_description_process', 'character_description_process', 'location_description_process', 'battle_description_process',
---  'plot_process');
 
 /*
 *сущность рабочие и все её характеристические сущности
@@ -29,6 +25,7 @@ CREATE TYPE EFFECT_LEVELS AS ENUM('AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC', 'CC
 CREATE TABLE workers(
     MAIN_WORKER_ID SERIAL,
     NAME VARCHAR(32) NOT NULL,
+    SECOND_NAME VARCHAR(32) NOT NULL,
     GENDER VARCHAR(32) NOT NULL,
     AGE INTEGER NOT NULL,
     PLACE_OF_BIRTH TEXT NOT NULL,
@@ -270,6 +267,7 @@ CREATE TABLE plot_process(
 */
 CREATE TABLE artifacts(
     ARTIFACT_ID SERIAL,
+    WORKER_ID INTEGER REFERENCES workers(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     ARTIFACT_TYPE ARTIFACT_TYPES NOT NULL,
     SIZE INTEGER NOT NULL,
     UPLOAD_DATE TIMESTAMP NOT NULL,
@@ -678,31 +676,205 @@ END
 $body$ LANGUAGE plpgsql STABLE;
 
 /*
-*создание функций для процессов и работников
+*создание функций для работников
 */
-
-/*
-*будет отдельная функция на выбр из каждой таблицы работников
-*внутри будет джойниться с результатами функций по выбору общей инфы
-*/
-CREATE OR REPLACE FUNCTION get_main_worker_info(main_worker_id INTEGER) RETURNS 
+CREATE OR REPLACE FUNCTION get_storyboarder_info(storyboarder_id INTEGER) RETURNS 
 TABLE(
-    MAIN_WORKER_ID INTEGER, 
-    WORKER_NAME VARCHAR, 
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
     GENDER VARCHAR, 
     AGE INTEGER, 
-    PLACE_OF_BIRTH TEXT, 
-    WORKER_POSITION WORKER_POSITIONS) AS
+    PLACE_OF_BIRTH TEXT) AS
 $body$
-DECLARE
-    table_name TEXT;
 BEGIN
-    RETURN QUERY EXECUTE FORMAT(
-    'SELECT * FROM workers AS w WHERE w.MAIN_WORKER_ID=$1', 
-    ) USING main_worker_id;
+    RETURN QUERY SELECT s.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH FROM storyboard_artists AS s 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE s.WORKER_ID = storyboarder_id;
 END
 $body$ LANGUAGE plpgsql STABLE;
 
+CREATE OR REPLACE FUNCTION get_producer_info(producer_id INTEGER) RETURNS 
+TABLE(
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
+    GENDER VARCHAR, 
+    AGE INTEGER, 
+    PLACE_OF_BIRTH TEXT,
+    ROLE PRODUCER_ROLES) AS
+$body$
+BEGIN
+    RETURN QUERY SELECT p.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH, p.ROLE FROM producers AS p 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE p.WORKER_ID = producer_id;
+END
+$body$ LANGUAGE plpgsql STABLE;
+
+CREATE OR REPLACE FUNCTION get_audio_specialist_info(audio_specialist_id INTEGER) RETURNS 
+TABLE(
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
+    GENDER VARCHAR, 
+    AGE INTEGER, 
+    PLACE_OF_BIRTH TEXT) AS
+$body$
+BEGIN
+    RETURN QUERY SELECT a.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH FROM audio_specialist AS a 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE a.WORKER_ID = audio_specialist_id;
+END
+$body$ LANGUAGE plpgsql STABLE;
+
+CREATE OR REPLACE FUNCTION get_digitizer_info(digitizer_id INTEGER) RETURNS 
+TABLE(
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
+    GENDER VARCHAR, 
+    AGE INTEGER, 
+    PLACE_OF_BIRTH TEXT) AS
+$body$
+BEGIN
+    RETURN QUERY SELECT d.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH FROM digitizers AS d 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE d.WORKER_ID = digitizer_id;
+END
+$body$ LANGUAGE plpgsql STABLE;
+
+CREATE OR REPLACE FUNCTION get_smoothing_specialist_info(smoothing_specialist_id INTEGER) RETURNS 
+TABLE(
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
+    GENDER VARCHAR, 
+    AGE INTEGER, 
+    PLACE_OF_BIRTH TEXT) AS
+$body$
+BEGIN
+    RETURN QUERY SELECT s.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH FROM smoothing_specialist AS s 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE s.WORKER_ID = smoothing_specialist_id;
+END
+$body$ LANGUAGE plpgsql STABLE;
+
+CREATE OR REPLACE FUNCTION get_art_director_info(art_director_id INTEGER) RETURNS 
+TABLE(
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
+    GENDER VARCHAR, 
+    AGE INTEGER, 
+    PLACE_OF_BIRTH TEXT) AS
+$body$
+BEGIN
+    RETURN QUERY SELECT ad.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH FROM art_director AS ad 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE ad.WORKER_ID = art_director_id;
+END
+$body$ LANGUAGE plpgsql STABLE;
+
+CREATE OR REPLACE FUNCTION get_screenwriter_info(screenwriter_id INTEGER) RETURNS 
+TABLE(
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
+    GENDER VARCHAR, 
+    AGE INTEGER, 
+    PLACE_OF_BIRTH TEXT,
+    FILMS_NUMBER INTEGER,
+    GENRES VARCHAR[]) AS
+$body$
+BEGIN
+    RETURN QUERY 
+    SELECT sw.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH, sw.FILMS_NUMBER, sw.GENRES FROM screenwriters AS sw 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE sw.WORKER_ID = screenwriter_id;
+END
+$body$ LANGUAGE plpgsql STABLE;
+
+CREATE OR REPLACE FUNCTION get_regisseur_info(regisseur_id INTEGER) RETURNS 
+TABLE(
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
+    GENDER VARCHAR, 
+    AGE INTEGER, 
+    PLACE_OF_BIRTH TEXT,
+    FILMS_NUMBER INTEGER,
+    GENRES VARCHAR[]) AS
+$body$
+BEGIN
+    RETURN QUERY 
+    SELECT r.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH, r.FILMS_NUMBER, r.GENRES FROM regisseurs AS r 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE r.WORKER_ID = regisseur_id;
+END
+$body$ LANGUAGE plpgsql STABLE;
+
+CREATE OR REPLACE FUNCTION get_roles_designer_info(roles_designer_id INTEGER) RETURNS 
+TABLE(
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
+    GENDER VARCHAR, 
+    AGE INTEGER, 
+    PLACE_OF_BIRTH TEXT) AS
+$body$
+BEGIN
+    RETURN QUERY SELECT rd.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH FROM roles_designers AS rd 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE rd.WORKER_ID = roles_designer_id;
+END
+$body$ LANGUAGE plpgsql STABLE;
+
+CREATE OR REPLACE FUNCTION get_recording_actor_info(recording_actor_id INTEGER) RETURNS 
+TABLE(
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
+    GENDER VARCHAR, 
+    AGE INTEGER, 
+    PLACE_OF_BIRTH TEXT,
+    POSITION RECORDING_ACTOR_POSITIONS) AS
+$body$
+BEGIN
+    RETURN QUERY SELECT ra.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH, ra.POSITION FROM recording_actors AS ra 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE ra.WORKER_ID = recording_actors;
+END
+$body$ LANGUAGE plpgsql STABLE;
+
+CREATE OR REPLACE FUNCTION get_editor_info(editor_id INTEGER) RETURNS 
+TABLE(
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
+    GENDER VARCHAR, 
+    AGE INTEGER, 
+    PLACE_OF_BIRTH TEXT,
+    GENRES VARCHAR[],
+    POSITION EDITOR_POSITIONS) AS
+$body$
+BEGIN
+    RETURN QUERY 
+    SELECT e.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH, e.GENRES, e.POSITION FROM editors AS e 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE e.WORKER_ID = editor_id;
+END
+$body$ LANGUAGE plpgsql STABLE;
+
+CREATE OR REPLACE FUNCTION get_artist_info(artist_id INTEGER) RETURNS 
+TABLE(
+    WORKER_ID INTEGER, 
+    WORKER_NAME VARCHAR,
+    WORKER_SECOND_NAME VARCHAR, 
+    GENDER VARCHAR, 
+    AGE INTEGER, 
+    PLACE_OF_BIRTH TEXT,
+    ARTIST_TYPE ARTIST_TYPES,
+    USING_TECHNOLOGY USING_TECHNOLOGIES) AS
+$body$
+BEGIN
+    RETURN QUERY 
+    SELECT a.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH, a.ARTIST_TYPE, a.USING_TECHNOLOGY FROM artists AS a 
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE a.WORKER_ID = artist_id;
+END
+$body$ LANGUAGE plpgsql STABLE;
+
+/*
+*создание функций для процессов
+*/
 CREATE OR REPLACE FUNCTION get_main_process_info(main_process_id INTEGER) RETURNS 
 TABLE(
     MAIN_PROCESS_ID INTEGER,
@@ -727,7 +899,7 @@ BEGIN
     mp.MAIN_PROCESS_ID, mp.DURATION, mp.DEADLINE_DATE, mp.DESCRIPTION, mp.STATUS, mp.ESTIMATION_TIME, mp.START_DATE, mp.PROCESS_NAME, 
     a.ARTIFACT_ID, a,ARTIFACT_TYPE, a.SIZE, a.UPLOAD_DATE, a.UPLOAD_USER
     FROM processes AS mp JOIN process_artifact USING(MAIN_PROCESS_ID) 
-    JOIN artifacts AS a USING(ARTIFACT_ID) WHERE mp.MAIN_PROCESS_ID=$1', 
+    JOIN artifacts AS a USING(ARTIFACT_ID) WHERE mp.MAIN_PROCESS_ID=$1' 
     ) USING main_process_id;
 END
 $body$ LANGUAGE plpgsql STABLE;
