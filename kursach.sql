@@ -1,9 +1,9 @@
-CREATE TYPE PRODUCER_ROLES AS ENUM ('Продюсер', 'Исполнительный продюсер', 'Сопродюсер', 'Ассоциированный продюсер', 
- 'Ассистирующий продюсер', 'Линейный продюсер', 'Административный продюсер', 'Креативный продюсер', 'Информационный продюсер');
-CREATE TYPE RECORDING_ACTOR_POSITIONS AS ENUM ('Дубляж', 'Озвучка ролей', 'Запись музыки');
+CREATE TYPE PRODUCER_ROLES AS ENUM ('producer', 'executive producer', 'co-producer', 'associate producer', 
+ 'assistant producer', 'line producer', 'administrative producer', 'creative producer', 'information producer');
+CREATE TYPE RECORDING_ACTOR_POSITIONS AS ENUM ('dubbing', 'voice acting roles', 'music recording');
 CREATE TYPE EDITOR_POSITIONS AS ENUM ('Литературный редактор', 'Технический редактор' , 'Художественный редактор', 'Главный редактор');
-CREATE TYPE ARTIST_TYPES AS ENUM ('Худ. по персонажам', 'Худ. по цвету', ' Худ. по фону', 'Худ. по анимации', 'Худ. по раскраске',
- 'Худ. по компоновке', 'Худ. по эффектам', 'Худ. по локациям', 'Худ. по сражениям');
+CREATE TYPE ARTIST_TYPES AS ENUM ('character artist', 'battle artist', 'location artist', 'background artist', 'effect artist', 
+ 'animation artist', 'coloring artist');
 CREATE TYPE PROCESS_STATUS AS ENUM ('Начат', 'В процессе', 'На ревизии', 'Завершён');
 CREATE TYPE INSERTION_LOCATIONS AS ENUM ('Начало серии', 'Середиина серии', 'Конец серии');
 CREATE TYPE SOUND_TYPES AS ENUM ('Музыка', 'Шумы');
@@ -13,9 +13,9 @@ CREATE TYPE REVISION_TYPES AS ENUM ('Мониторинг всех процес�
 CREATE TYPE COLORING_TYPES AS ENUM ('Цветная', 'Чёрно-белая');
 CREATE TYPE VOICE_ACTING_TYPES AS ENUM ('Предварительная', 'Последующая');
 CREATE TYPE PLOT_TYPES AS ENUM ('Основной', 'Дополнительный', 'Флэш бэк');
-CREATE TYPE LOCATION_TYPES AS ENUM ('Поле', 'Лес', 'Город', 'Деревня', 'Джунгли', 'Водоём', 'Горы', 'Пустыня', 'Пещера', 'Водопад', 'Замок');
-CREATE TYPE ABILITY_TYPES AS ENUM ('Атака', 'Защита', 'Хилка', 'Трёп');
-CREATE TYPE USING_TECHNOLOGIES AS ENUM ('Рисунки', 'Куклы', 'Трёхмерная графика');
+CREATE TYPE LOCATION_TYPES AS ENUM ('field', 'forest', 'city', 'village', 'jungle', 'lake', 'mounatains', 'desert', 'cave', 'waterfall', 'castle');
+CREATE TYPE ABILITY_TYPES AS ENUM ('attack', 'defence', 'heal', 'chatting');
+CREATE TYPE USING_TECHNOLOGIES AS ENUM ('drawings', 'dolls', '3D');
 CREATE TYPE ARTIFACT_TYPES AS ENUM ();
 CREATE TYPE EFFECT_LEVELS AS ENUM('AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC', 'CC', 'C');
 
@@ -593,6 +593,38 @@ END
 $body$ LANGUAGE plpgsql VOLATILE;
 CREATE TRIGGER is_battle_location BEFORE INSERT OR UPDATE ON battle_location FOR EACH ROW EXECUTE PROCEDURE check_if_battle();
 
+CREATE OR REPLACE FUNCTION check_if_character_artist() RETURNS trigger AS
+$body$
+DECLARE
+    artist_type ARTIST_TYPES;
+BEGIN
+    SELECT a.ARTIST_TYPE INTO artist_type FROM artists AS a WHERE a.WORKER_ID = NEW.WORKER_ID;
+    IF artist_type = 'character artist' THEN
+        INSERT INTO trigger_info(TG_OP, TG_RELNAME, TG_NAME, CREATION_TIME) VALUES(TG_OP, TG_RELNAME, TG_NAME, NOW());
+        RETURN NEW;
+    ELSE
+        RETURN NULL;
+    END IF;
+END
+$body$ LANGUAGE plpgsql VOLATILE;
+CREATE TRIGGER is_character_artist BEFORE INSERT OR UPDATE ON artist_character_drawing_process FOR EACH ROW EXECUTE PROCEDURE check_if_character_artist();
+
+CREATE OR REPLACE FUNCTION check_if_battle_artist() RETURNS trigger AS
+$body$
+DECLARE
+    artist_type ARTIST_TYPES;
+BEGIN
+    SELECT a.ARTIST_TYPE INTO artist_type FROM artists AS a WHERE a.WORKER_ID = NEW.WORKER_ID;
+    IF artist_type = 'battle artist' THEN
+        INSERT INTO trigger_info(TG_OP, TG_RELNAME, TG_NAME, CREATION_TIME) VALUES(TG_OP, TG_RELNAME, TG_NAME, NOW());
+        RETURN NEW;
+    ELSE
+        RETURN NULL;
+    END IF;
+END
+$body$ LANGUAGE plpgsql VOLATILE;
+CREATE TRIGGER is_battle_artist BEFORE INSERT OR UPDATE ON artist_battle_drawing_process FOR EACH ROW EXECUTE PROCEDURE check_if_battle_artist();
+
 /*
 *создание функций для основных стержневых сущностей
 */
@@ -1113,7 +1145,7 @@ CREATE OR REPLACE PROCEDURE create_storyboard_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO storyboard_process(MAIN_PROCESS_ID, FRAME_NUMBER) VALUES(currval('processes_main_process_id_seq'), frame_number);
 END
 $$;
@@ -1130,7 +1162,7 @@ CREATE OR REPLACE PROCEDURE create_advertising_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO adevertising_process(MAIN_PROCESS_ID, INSERTION_LOCATION) 
     VALUES(currval('processes_main_process_id_seq'), insertion_location);
 END
@@ -1148,7 +1180,7 @@ CREATE OR REPLACE PROCEDURE create_adding_sound_effect_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO adding_effect_process(MAIN_PROCESS_ID, SOUND_TYPE) VALUES(currval('processes_main_process_id_seq'), sound_type);
 END
 $$;
@@ -1166,7 +1198,7 @@ CREATE OR REPLACE PROCEDURE create_digitization_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO digitization_process(MAIN_PROCESS_ID, SKETCHES_NUMBER, DIGITIZATION_TYPE) 
     VALUES(currval('processes_main_process_id_seq'), sketches_number, digitization_type);
 END
@@ -1183,7 +1215,7 @@ CREATE OR REPLACE PROCEDURE create_smoothing_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO smoothing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
 END
 $$;
@@ -1200,7 +1232,7 @@ CREATE OR REPLACE PROCEDURE create_revision_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO revisions_process(MAIN_PROCESS_ID, REVISION_TYPE) VALUES(currval('processes_main_process_id_seq'), revision_type);
 END
 $$;
@@ -1217,7 +1249,7 @@ CREATE OR REPLACE PROCEDURE create_coloring_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO coloring_process(MAIN_PROCESS_ID, COLORING_TYPE) VALUES(currval('processes_main_process_id_seq'), coloring_type);
 END
 $$;
@@ -1235,7 +1267,7 @@ CREATE OR REPLACE PROCEDURE create_animation_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO animation_process(MAIN_PROCESS_ID, FRAME_RATE, ANIMATION_TECHNOLOGY) 
     VALUES(currval('processes_main_process_id_seq'), frame_rate, animation_technology);
 END
@@ -1253,7 +1285,7 @@ CREATE OR REPLACE PROCEDURE create_adding_effect_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO adding_effect_process(MAIN_PROCESS_ID, EFFECT_LEVEL) VALUES(currval('processes_main_process_id_seq'), effect_level);
 END
 $$;
@@ -1269,7 +1301,7 @@ CREATE OR REPLACE PROCEDURE create_location_drawing_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO location_drawing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
 END
 $$;
@@ -1285,7 +1317,7 @@ CREATE OR REPLACE PROCEDURE create_battle_drawing_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO battle_drawing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
 END
 $$;
@@ -1301,7 +1333,7 @@ CREATE OR REPLACE PROCEDURE create_character_drawing_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO character_drawing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
 END
 $$;
@@ -1317,7 +1349,7 @@ CREATE OR REPLACE PROCEDURE create_character_select_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO character_select_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
 END
 $$;
@@ -1334,7 +1366,7 @@ CREATE OR REPLACE PROCEDURE create_voice_acting_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO voice_acting_process(MAIN_PROCESS_ID, VOICE_ACTING_TYPE) VALUES(currval('processes_main_process_id_seq'), voice_acting_type);
 END
 $$;
@@ -1350,7 +1382,7 @@ CREATE OR REPLACE PROCEDURE create_ability_description_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO ability_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
 END
 $$;
@@ -1366,7 +1398,7 @@ CREATE OR REPLACE PROCEDURE create_character_description_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO character_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
 END
 $$;
@@ -1382,7 +1414,7 @@ CREATE OR REPLACE PROCEDURE create_location_description_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO location_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
 END
 $$;
@@ -1398,7 +1430,7 @@ CREATE OR REPLACE PROCEDURE create_battle_description_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO battle_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
 END
 $$;
@@ -1414,7 +1446,7 @@ CREATE OR REPLACE PROCEDURE create_plot_process(
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
-    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO plot_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
 END
 $$;
