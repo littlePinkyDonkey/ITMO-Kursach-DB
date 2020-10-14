@@ -1117,3 +1117,304 @@ BEGIN
     INSERT INTO storyboard_process(MAIN_PROCESS_ID, FRAME_NUMBER) VALUES(currval('processes_main_process_id_seq'), frame_number);
 END
 $$;
+
+CREATE OR REPLACE PROCEDURE create_advertising_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE,
+    insertion_location INSERTION_LOCATIONS
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO adevertising_process(MAIN_PROCESS_ID, INSERTION_LOCATION) 
+    VALUES(currval('processes_main_process_id_seq'), insertion_location);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_adding_sound_effect_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE,
+    sound_type SOUND_TYPES
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO adding_effect_process(MAIN_PROCESS_ID, SOUND_TYPE) VALUES(currval('processes_main_process_id_seq'), sound_type);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_digitization_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE,
+    sketches_number INTEGER,
+    digitization_type DIGITIZATION_TYPES
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO digitization_process(MAIN_PROCESS_ID, SKETCHES_NUMBER, DIGITIZATION_TYPE) 
+    VALUES(currval('processes_main_process_id_seq'), sketches_number, digitization_type);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_smoothing_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO smoothing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_revision_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE,
+    revision_type REVISION_TYPES
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO revisions_process(MAIN_PROCESS_ID, REVISION_TYPE) VALUES(currval('processes_main_process_id_seq'), revision_type);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_coloring_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE,
+    coloring_type COLORING_TYPES
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO coloring_process(MAIN_PROCESS_ID, COLORING_TYPE) VALUES(currval('processes_main_process_id_seq'), coloring_type);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_animation_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE,
+    frame_rate INTEGER,
+    animation_technology VARCHAR
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO animation_process(MAIN_PROCESS_ID, FRAME_RATE, ANIMATION_TECHNOLOGY) 
+    VALUES(currval('processes_main_process_id_seq'), frame_rate, animation_technology);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_adding_effect_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE,
+    effect_level EFFECT_LEVELS
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO adding_effect_process(MAIN_PROCESS_ID, EFFECT_LEVEL) VALUES(currval('processes_main_process_id_seq'), effect_level);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_location_drawing_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO location_drawing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_battle_drawing_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO battle_drawing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_character_drawing_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO character_drawing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_character_select_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO character_select_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_voice_acting_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE,
+    voice_acting_type VOICE_ACTING_TYPES
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO voice_acting_process(MAIN_PROCESS_ID, VOICE_ACTING_TYPE) VALUES(currval('processes_main_process_id_seq'), voice_acting_type);
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_ability_description_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO ability_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_character_description_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO character_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_location_description_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO location_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_battle_description_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO battle_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE create_plot_process(
+    duration INTEGER,
+    deadline_date DATE,
+    description TEXT,
+    status PROCESS_STATUS,
+    estimation_time INTERVAL,
+    start_date DATE
+) LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
+    VALUES(duration, deadline_date, description, start_date, estimation_time, start_date);
+    INSERT INTO plot_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+END
+$$;
