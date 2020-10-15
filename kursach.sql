@@ -17,6 +17,7 @@ CREATE TYPE ABILITY_TYPES AS ENUM ('attack', 'defence', 'heal', 'chatting');
 CREATE TYPE USING_TECHNOLOGIES AS ENUM ('drawings', 'dolls', '3D');
 CREATE TYPE ARTIFACT_TYPES AS ENUM ('image', 'video', 'text', 'music', 'sounds');
 CREATE TYPE EFFECT_LEVELS AS ENUM('AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC', 'CC', 'C');
+CREATE TYPE RECORDING_ACTORS_POSITIONS AS ENUM('main', 'second_role');
 
 /*
 *сущность рабочие и все её характеристические сущности
@@ -120,7 +121,7 @@ CREATE TABLE recording_actors(
     CONSTRAINT RECORDING_ACTORS_PK PRIMARY KEY(WORKER_ID)
 );
 CREATE INDEX worker_id_idx ON recording_actors (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON recording_actors (MAIN__WORKER_ID);
+CREATE INDEX main_worker_id_idx ON recording_actors (MAIN_WORKER_ID);
 
 CREATE TABLE editors(
     WORKER_ID SERIAL,
@@ -220,7 +221,7 @@ CREATE TABLE revisions_process(
 );
 CREATE INDEX processe_id_idx ON revisions_process (PROCESS_ID);
 CREATE INDEX main_process_id_idx ON revisions_process (MAIN_PROCESS_ID);
-CREATE INDEX revision_type_idx ON revision_type (REVISION_TYPE);
+CREATE INDEX revision_type_idx ON revisions_process (REVISION_TYPE);
 
 CREATE TABLE coloring_process(
     PROCESS_ID SERIAL,
@@ -242,7 +243,7 @@ CREATE TABLE animation_process(
 );
 CREATE INDEX processe_id_idx ON animation_process (PROCESS_ID);
 CREATE INDEX main_process_id_idx ON animation_process (MAIN_PROCESS_ID);
-CREATE INDEX animation_technology_idx ON animation_technology (ANIMATION_TECHNOLOGY);
+CREATE INDEX animation_technology_idx ON animation_process (ANIMATION_TECHNOLOGY);
 
 CREATE TABLE adding_effect_process(
     PROCESS_ID SERIAL,
@@ -351,7 +352,7 @@ CREATE TABLE artifacts(
 CREATE INDEX artifact_id_idx ON artifacts (ARTIFACT_ID);
 CREATE INDEX main_worker_id_idx ON artifacts (MAIN_WORKER_ID);
 CREATE INDEX artifact_type_idx ON artifacts (ARTIFACT_TYPE);
-CREATE INDEX upload_date_idx ON artifacts (UPLOAD_DATE) DESC;
+CREATE INDEX upload_date_idx ON artifacts (UPLOAD_DATE DESC);
 CREATE INDEX artifact_type_upload_date_idx ON artifacts (ARTIFACT_TYPE, UPLOAD_DATE);
 
 /*
@@ -430,9 +431,9 @@ CREATE TABLE character(
 *создание ассоциаций между процессами
 */
 CREATE TABLE revision_storyboarding(
-    REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DEADLINE_DATE CASCADE,
+    REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PROCESS_ID INTEGER REFERENCES storyboard_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT REVISION_STORYBOARDING_PK PRIMARY KEY(REVISION_ID, STORYBOARDING_ID)
+    CONSTRAINT REVISION_STORYBOARDING_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
 CREATE INDEX revision_id_idx ON revision_storyboarding (REVISION_ID);
 CREATE INDEX process_id_idx ON revision_storyboarding (PROCESS_ID);
@@ -440,7 +441,7 @@ CREATE INDEX process_id_idx ON revision_storyboarding (PROCESS_ID);
 CREATE TABLE revision_adding_sound(
     REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PROCESS_ID INTEGER REFERENCES adding_sound_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT REVISION_ADDING_SOUND_PK PRIMARY KEY(REVISION_ID, ADDING_ID)
+    CONSTRAINT REVISION_ADDING_SOUND_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
 CREATE INDEX revision_id_idx ON revision_adding_sound (REVISION_ID);
 CREATE INDEX process_id_idx ON revision_adding_sound (PROCESS_ID);
@@ -448,7 +449,7 @@ CREATE INDEX process_id_idx ON revision_adding_sound (PROCESS_ID);
 CREATE TABLE revision_smoothing(
     REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PROCESS_ID INTEGER REFERENCES smoothing_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT REVISION_SMOOTHING_PK PRIMARY KEY(REVISION_ID, SMOOTHING_ID)
+    CONSTRAINT REVISION_SMOOTHING_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
 CREATE INDEX revision_id_idx ON revision_smoothing (REVISION_ID);
 CREATE INDEX process_id_idx ON revision_smoothing (PROCESS_ID);
@@ -456,7 +457,7 @@ CREATE INDEX process_id_idx ON revision_smoothing (PROCESS_ID);
 CREATE TABLE revision_adding_effects(
     REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PROCESS_ID INTEGER REFERENCES adding_effect_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT REVISION_ADDING_EFFECTS_PK PRIMARY KEY(REVISION_ID, ADDING_ID)
+    CONSTRAINT REVISION_ADDING_EFFECTS_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
 CREATE INDEX revision_id_idx ON revision_adding_effects (REVISION_ID);
 CREATE INDEX process_id_idx ON revision_adding_effects (PROCESS_ID);
@@ -464,7 +465,7 @@ CREATE INDEX process_id_idx ON revision_adding_effects (PROCESS_ID);
 CREATE TABLE revision_animation(
     REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PROCESS_ID INTEGER REFERENCES animation_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT REVISION_ANIMATION_PK PRIMARY KEY(REVISION_ID, ANIMATION_ID)
+    CONSTRAINT REVISION_ANIMATION_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
 CREATE INDEX revision_id_idx ON revision_animation (REVISION_ID);
 CREATE INDEX process_id_idx ON revision_animation (PROCESS_ID);
@@ -472,7 +473,7 @@ CREATE INDEX process_id_idx ON revision_animation (PROCESS_ID);
 CREATE TABLE revision_coloring(
     REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PROCESS_ID INTEGER REFERENCES coloring_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT REVISION_COLORING_PK PRIMARY KEY(REVISION_ID, COLORING_ID)
+    CONSTRAINT REVISION_COLORING_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
 CREATE INDEX revision_id_idx ON revision_coloring (REVISION_ID);
 CREATE INDEX process_id_idx ON revision_coloring (PROCESS_ID);
@@ -664,7 +665,7 @@ CREATE INDEX event_id_idx ON events_plots (EVENT_ID);
 CREATE INDEX plot_id_idx ON events_plots (PLOT_ID);
 
 CREATE TABLE event_location(
-    EVENT_ID INTEGER INTEGER REFERENCES events(EVENT_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    EVENT_ID INTEGER REFERENCES events(EVENT_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     LOCATION_ID INTEGER REFERENCES locations(LOCATION_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT EVENT_LOCATION_PK PRIMARY KEY(EVENT_ID, LOCATION_ID)
 );
@@ -672,7 +673,7 @@ CREATE INDEX event_id_idx ON event_location (EVENT_ID);
 CREATE INDEX location_id_idx ON event_location (LOCATION_ID);
 
 CREATE TABLE events_characters(
-    EVENT_ID INTEGER INTEGER REFERENCES events(EVENT_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    EVENT_ID INTEGER REFERENCES events(EVENT_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CHARACTER_ID INTEGER REFERENCES character(CHARACTER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT EVENTS_CHARACTERS_PK PRIMARY KEY(EVENT_ID, CHARACTER_ID)
 );
@@ -819,7 +820,7 @@ BEGIN
     END IF;
 END
 $body$ LANGUAGE plpgsql VOLATILE;
-CREATE TRIGGER is_animation_artist BEFORE INSERT OR UPDATE artist_animation_process FOR EACH ROW EXECUTE PROCEDURE check_if_animation_artist();
+CREATE TRIGGER is_animation_artist BEFORE INSERT OR UPDATE ON artist_animation_process FOR EACH ROW EXECUTE PROCEDURE check_if_animation_artist();
 
 CREATE OR REPLACE FUNCTION check_if_coloring_artist() RETURNS trigger AS
 $body$
@@ -868,7 +869,7 @@ END
 $body$
 LANGUAGE plpgsql STABLE;
 
-CREATE OR REPLACE FUNCTION get_character_ablilities(character_id INTEGER) RETURNS 
+CREATE OR REPLACE FUNCTION get_character_ablilities(char_id INTEGER) RETURNS
 TABLE(
     CHARACTER_NAME VARCHAR, 
     ABILITY_NAME VARCHAR, 
@@ -878,7 +879,7 @@ TABLE(
 $body$
 BEGIN
     RETURN QUERY SELECT c.CHARACTER_NAME, a.ABILITY_NAME, a.DESCRIPTION, a.ABILITY_TYPE, a.COMPLEXITY_LEVEL FROM character AS c 
-    JOIN characters_abilities USING(CHARACTER_ID) JOIN abilities AS a USING(ABILITY_ID) WHERE c.CHARACTER_ID = character_id;
+    JOIN characters_abilities USING(CHARACTER_ID) JOIN abilities AS a USING(ABILITY_ID) WHERE c.CHARACTER_ID = char_id;
 END
 $body$ LANGUAGE plpgsql STABLE;
 
@@ -901,7 +902,7 @@ BEGIN
         table_attribute := 'BATTLE_NAME';
     ELSE
         table_name := 'c';
-        table_attribute := 'CHARACTER_NAME'
+        table_attribute := 'CHARACTER_NAME';
     END IF;
     RETURN QUERY EXECUTE FORMAT 
     ('SELECT c.CHARACTER_NAME, b.BATTLE_NAME, b.DURATION, a.ABILITY_NAME, a.DESCRIPTION, a.ABILITY_TYPE, a.COMPLEXITY_LEVEL 
@@ -1069,7 +1070,7 @@ TABLE(
 $body$
 BEGIN
     RETURN QUERY SELECT ra.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH, ra.POSITION FROM recording_actors AS ra 
-    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE ra.WORKER_ID = recording_actors;
+    JOIN workers AS w USING(MAIN_WORKER_ID) WHERE ra.WORKER_ID = recording_actor_id;
 END
 $body$ LANGUAGE plpgsql STABLE;
 
@@ -1124,13 +1125,14 @@ TABLE(
     ARTIFACT_ID INTEGER, 
     ARTIFACT_TYPE ARTIFACT_TYPES, 
     SIZE INTEGER, 
-    UPLOAD_DATE TIMESTAMP, 
-    UPLOAD_USER VARCHAR) AS
+    UPLOAD_DATE TIMESTAMP,
+    MAIN_WORKER_ID INTEGER) AS
 $body$
 BEGIN
     RETURN QUERY 
     SELECT 
-    mp.MAIN_PROCESS_ID, mp.DURATION, mp.DEADLINE_DATE, mp.DESCRIPTION, mp.STATUS, mp.ESTIMATION_TIME, mp.START_DATE, a.ARTIFACT_ID, a.ARTIFACT_TYPE, a.SIZE, a.UPLOAD_DATE, a.UPLOAD_USER
+    mp.MAIN_PROCESS_ID, mp.DURATION, mp.DEADLINE_DATE, mp.DESCRIPTION, mp.STATUS, mp.ESTIMATION_TIME,
+    mp.START_DATE, a.ARTIFACT_ID, a.ARTIFACT_TYPE, a.SIZE, a.UPLOAD_DATE, a.MAIN_WORKER_ID
     FROM processes AS mp JOIN process_artifact USING(MAIN_PROCESS_ID) 
     JOIN artifacts AS a USING(ARTIFACT_ID);
 END
@@ -1149,13 +1151,13 @@ TABLE(
     ARTIFACT_ID INTEGER, 
     ARTIFACT_TYPE ARTIFACT_TYPES, 
     SIZE INTEGER, 
-    UPLOAD_DATE TIMESTAMP, 
-    UPLOAD_USER VARCHAR) AS
+    UPLOAD_DATE TIMESTAMP,
+    MAIN_WORKER_ID INTEGER) AS
 $body$
 BEGIN
     RETURN QUERY SELECT 
     sp.PROCESS_ID, sp.FRAME_NUMBER, mpa.DURATION, mpa.DEADLINE_DATE, mpa.DESCRIPTION, mpa.STATUS, mpa.ESTIMATION_TIME, 
-    mpa.START_DATE, mpa.ARTIFACT_ID, mpa.ARTIFACT_TYPE, mpa.SIZE, mpa.UPLOAD_DATE, mpa.UPLOAD_USER 
+    mpa.START_DATE, mpa.ARTIFACT_ID, mpa.ARTIFACT_TYPE, mpa.SIZE, mpa.UPLOAD_DATE, mpa.MAIN_WORKER_ID
     FROM storyboard_process AS sp JOIN get_main_process_joined_artifacts_info() AS mpa USING(MAIN_PROCESS_ID) 
     WHERE sp.PROCESS_ID=storyboard_process_id;
 END
@@ -1393,7 +1395,7 @@ $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
-    INSERT INTO adding_effect_process(MAIN_PROCESS_ID, SOUND_TYPE) VALUES(currval('processes_main_process_id_seq'), sound_type);
+    INSERT INTO adding_sound_process(MAIN_PROCESS_ID, SOUND_TYPE) VALUES(currval('processes_main_process_id_seq'), sound_type);
 END
 $$;
 
