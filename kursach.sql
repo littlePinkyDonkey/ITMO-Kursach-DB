@@ -1,21 +1,21 @@
 CREATE TYPE PRODUCER_ROLES AS ENUM ('producer', 'executive producer', 'co-producer', 'associate producer', 
  'assistant producer', 'line producer', 'administrative producer', 'creative producer', 'information producer');
 CREATE TYPE RECORDING_ACTOR_POSITIONS AS ENUM ('dubbing', 'voice acting roles', 'music recording');
-CREATE TYPE EDITOR_POSITIONS AS ENUM ('Литературный редактор', 'Технический редактор' , 'Художественный редактор', 'Главный редактор');
+CREATE TYPE EDITOR_POSITIONS AS ENUM ('literature editor', 'technical editor' , 'art editor', 'main editor');
 CREATE TYPE ARTIST_TYPES AS ENUM ('character artist', 'battle artist', 'location artist', 'background artist', 'effect artist', 
  'animation artist', 'coloring artist');
 CREATE TYPE PROCESS_STATUS AS ENUM ('started', 'in process', 'revision', 'finished');
 CREATE TYPE INSERTION_LOCATIONS AS ENUM ('the beginning', 'the middle', 'the end');
 CREATE TYPE SOUND_TYPES AS ENUM ('music', 'noises');
 CREATE TYPE DIGITIZATION_TYPES AS ENUM ('adding contrast, then scanning', 'scanning, then adding contrast');
-CREATE TYPE REVISION_TYPES AS ENUM ('Мониторинг всех процессов', 'Мониторинг части процессов');
+CREATE TYPE REVISION_TYPES AS ENUM ('full revision', 'part revision');
 CREATE TYPE COLORING_TYPES AS ENUM ('colored', 'black-white');
 CREATE TYPE VOICE_ACTING_TYPES AS ENUM ('preliminary', 'follow-up');
-CREATE TYPE PLOT_TYPES AS ENUM ('Основной', 'Дополнительный', 'Флэш бэк');
+CREATE TYPE PLOT_TYPES AS ENUM ('main', 'additional', 'spin-off');
 CREATE TYPE LOCATION_TYPES AS ENUM ('field', 'forest', 'city', 'village', 'jungle', 'lake', 'mounatains', 'desert', 'cave', 'waterfall', 'castle');
 CREATE TYPE ABILITY_TYPES AS ENUM ('attack', 'defence', 'heal', 'chatting');
 CREATE TYPE USING_TECHNOLOGIES AS ENUM ('drawings', 'dolls', '3D');
-CREATE TYPE ARTIFACT_TYPES AS ENUM ();
+CREATE TYPE ARTIFACT_TYPES AS ENUM ('image', 'video', 'text', 'music', 'sounds');
 CREATE TYPE EFFECT_LEVELS AS ENUM('AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC', 'CC', 'C');
 
 /*
@@ -31,7 +31,7 @@ CREATE TABLE workers(
     CONSTRAINT WORKERS_PK PRIMARY KEY(MAIN_WORKER_ID),
     CONSTRAINT WORKERS_AGE_CHECK CHECK(AGE > 0 AND AGE < 120)
 );
-CREATE UNIQUE INDEX workers_full_name_idx ON workers (NAME, SECOND_NAME);
+CREATE INDEX workers_full_name_idx ON workers (SECOND_NAME, NAME);
 CREATE INDEX workers_id_idx ON workers (MAIN_WORKER_ID);
 
 CREATE TABLE storyboard_artists(
@@ -134,7 +134,7 @@ CREATE INDEX main_worker_id_idx ON editors (MAIN_WORKER_ID);
 
 CREATE TABLE artists(
     WORKER_ID SERIAL,
-    MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    MAIN_WORKER_ID INTEGER REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     ARTIST_TYPE ARTIST_TYPES NOT NULL,
     USING_TECHNOLOGY USING_TECHNOLOGIES NOT NULL,
     CONSTRAINT ARTISTS_PK PRIMARY KEY(WORKER_ID)
@@ -158,7 +158,8 @@ CREATE TABLE processes(
     CONSTRAINT PROCESS_DATES_CHECk CHECK(DEADLINE_DATE > START_DATE)
 );
 CREATE INDEX processes_id_idx ON processes (MAIN_PROCESS_ID);
-CREATE INDEX description_deadline_idx ON processes (DESCRIPTION, DEADLINE_DATE);
+CREATE INDEX description_deadline_idx ON processes USING hash (DESCRIPTION);
+CREATE INDEX process_status_idx ON processes (STATUS);
 
 CREATE TABLE storyboard_process(
     PROCESS_ID SERIAL,
@@ -350,7 +351,7 @@ CREATE TABLE artifacts(
 CREATE INDEX artifact_id_idx ON artifacts (ARTIFACT_ID);
 CREATE INDEX main_worker_id_idx ON artifacts (MAIN_WORKER_ID);
 CREATE INDEX artifact_type_idx ON artifacts (ARTIFACT_TYPE);
-CREATE INDEX upload_date_idx ON artifacts (UPLOAD_DATE);
+CREATE INDEX upload_date_idx ON artifacts (UPLOAD_DATE) DESC;
 CREATE INDEX artifact_type_upload_date_idx ON artifacts (ARTIFACT_TYPE, UPLOAD_DATE);
 
 /*
