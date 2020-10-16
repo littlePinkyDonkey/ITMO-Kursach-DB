@@ -33,15 +33,15 @@ CREATE TABLE workers(
     CONSTRAINT WORKERS_AGE_CHECK CHECK(AGE > 0 AND AGE < 120)
 );
 CREATE INDEX workers_full_name_idx ON workers (SECOND_NAME, NAME);
-CREATE INDEX workers_id_idx ON workers (MAIN_WORKER_ID);
+CREATE INDEX workers_id_idx ON workers USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE storyboard_artists(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT STORYBOARD_ARTISTS_PK PRIMARY KEY(WORKER_ID)
 );
-CREATE INDEX worker_id_idx ON storyboard_artists (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON storyboard_artists (MAIN_WORKER_ID);
+CREATE INDEX storyboard_artists_id_idx ON storyboard_artists USING hash (WORKER_ID);
+CREATE INDEX storyboard_artists_main_worker_id_idx ON storyboard_artists USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE producers(
     WORKER_ID SERIAL,
@@ -49,40 +49,40 @@ CREATE TABLE producers(
     ROLE PRODUCER_ROLES NOT NULL,
     CONSTRAINT PRODUCERS_PK PRIMARY KEY(WORKER_ID)
 );
-CREATE INDEX worker_id_idx ON producers (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON producers (MAIN_WORKER_ID);
+CREATE INDEX producers_id_idx ON producers USING hash (WORKER_ID);
+CREATE INDEX producers_main_worker_id_idx ON producers USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE audio_specialist(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT AUDIO_SPECIALIST_PK PRIMARY KEY(WORKER_ID)
 );
-CREATE INDEX worker_id_idx ON audio_specialist (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON audio_specialist (MAIN_WORKER_ID);
+CREATE INDEX audio_specialist_id_idx ON audio_specialist USING hash (WORKER_ID);
+CREATE INDEX audio_specialist_main_worker_id_idx ON audio_specialist USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE digitizers(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT DIGITIZERS_PK PRIMARY KEY(WORKER_ID)
 );
-CREATE INDEX worker_id_idx ON digitizers (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON digitizers (MAIN_WORKER_ID);
+CREATE INDEX digitizers_id_idx ON digitizers USING hash (WORKER_ID);
+CREATE INDEX digitizers_main_worker_id_idx ON digitizers USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE smoothing_specialist(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT SMOOTHING_SPECIALIST PRIMARY KEY(WORKER_ID)
 );
-CREATE INDEX worker_id_idx ON smoothing_specialist (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON smoothing_specialist (MAIN_WORKER_ID);
+CREATE INDEX smoothing_specialist_id_idx ON smoothing_specialist USING hash (WORKER_ID);
+CREATE INDEX smoothing_specialist_main_worker_id_idx ON smoothing_specialist USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE art_director(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ART_DIRECTOR_PK PRIMARY KEY(WORKER_ID)
 );
-CREATE INDEX worker_id_idx ON art_director (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON art_director (MAIN_WORKER_ID);
+CREATE INDEX art_director_id_idx ON art_director USING hash (WORKER_ID);
+CREATE INDEX art_director_main_worker_id_idx ON art_director USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE screenwriters(
     WORKER_ID SERIAL,
@@ -92,8 +92,8 @@ CREATE TABLE screenwriters(
     CONSTRAINT SCREENWRITERS_PK PRIMARY KEY(WORKER_ID),
     CONSTRAINT SCREENWRITER_FILMS_NUMBER_CHECK CHECK(FILMS_NUMBER >= 0)
 );
-CREATE INDEX worker_id_idx ON screenwriters (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON screenwriters (MAIN_WORKER_ID);
+CREATE INDEX screenwriters_id_idx ON screenwriters USING hash (WORKER_ID);
+CREATE INDEX screenwriters_main_worker_id_idx ON screenwriters USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE regisseurs(
     WORKER_ID SERIAL,
@@ -103,16 +103,16 @@ CREATE TABLE regisseurs(
     CONSTRAINT REGISSEURS_PK PRIMARY KEY(WORKER_ID),
     CONSTRAINT REGISSEURS_FILMS_NUMBER_CHECK CHECK(FILMS_NUMBER >= 0)
 );
-CREATE INDEX worker_id_idx ON regisseurs (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON regisseurs (MAIN_WORKER_ID);
+CREATE INDEX regisseurs_id_idx ON regisseurs USING hash (WORKER_ID);
+CREATE INDEX regisseurs_main_worker_id_idx ON regisseurs USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE roles_designers(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ROLES_DESIGNERS_PK PRIMARY KEY(WORKER_ID)
 );
-CREATE INDEX worker_id_idx ON roles_designers (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON roles_designers (MAIN_WORKER_ID);
+CREATE INDEX roles_designers_id_idx ON roles_designers USING hash (WORKER_ID);
+CREATE INDEX roles_designers_main_worker_id_idx ON roles_designers USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE recording_actors(
     WORKER_ID SERIAL,
@@ -120,8 +120,8 @@ CREATE TABLE recording_actors(
     POSITION RECORDING_ACTORS_POSITIONS NOT NULL,
     CONSTRAINT RECORDING_ACTORS_PK PRIMARY KEY(WORKER_ID)
 );
-CREATE INDEX worker_id_idx ON recording_actors (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON recording_actors (MAIN_WORKER_ID);
+CREATE INDEX recording_actors_id_idx ON recording_actors USING hash (WORKER_ID);
+CREATE INDEX recording_actors_main_worker_id_idx ON recording_actors USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE editors(
     WORKER_ID SERIAL,
@@ -130,8 +130,8 @@ CREATE TABLE editors(
     POSITION EDITOR_POSITIONS NOT NULL,
     CONSTRAINT EDITORS_PK PRIMARY KEY(WORKER_ID)
 );
-CREATE INDEX worker_id_idx ON editors (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON editors (MAIN_WORKER_ID);
+CREATE INDEX editors_id_idx ON editors USING hash (WORKER_ID);
+CREATE INDEX editors_main_worker_id_idx ON editors USING hash (MAIN_WORKER_ID);
 
 CREATE TABLE artists(
     WORKER_ID SERIAL,
@@ -140,8 +140,8 @@ CREATE TABLE artists(
     USING_TECHNOLOGY USING_TECHNOLOGIES NOT NULL,
     CONSTRAINT ARTISTS_PK PRIMARY KEY(WORKER_ID)
 );
-CREATE INDEX worker_id_idx ON artists (WORKER_ID);
-CREATE INDEX main_worker_id_idx ON artists (MAIN_WORKER_ID);
+CREATE INDEX artists_id_idx ON artists USING hash (WORKER_ID);
+CREATE INDEX artists_main_worker_id_idx ON artists USING hash (MAIN_WORKER_ID);
 
 /*
 *сущность процессы и все её характеристические сущности
@@ -158,8 +158,7 @@ CREATE TABLE processes(
     CONSTRAINT PROCESSES_DURATION_CHECK CHECK(DURATION > 0),
     CONSTRAINT PROCESS_DATES_CHECk CHECK(DEADLINE_DATE > START_DATE)
 );
-CREATE INDEX processes_id_idx ON processes (MAIN_PROCESS_ID);
-CREATE INDEX description_deadline_idx ON processes USING hash (DESCRIPTION);
+CREATE INDEX processes_id_idx ON processes USING hash (MAIN_PROCESS_ID);
 CREATE INDEX process_status_idx ON processes (STATUS);
 
 CREATE TABLE storyboard_process(
@@ -169,8 +168,8 @@ CREATE TABLE storyboard_process(
     CONSTRAINT STORYBOARD_PROCESS_PK PRIMARY KEY(PROCESS_ID),
     CONSTRAINT STORYBOARD_PROCESS_FRAME_NUMBER_CHECK CHECK(FRAME_NUMBER >= 0)
 );
-CREATE INDEX processe_id_idx ON storyboard_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON storyboard_process (MAIN_PROCESS_ID);
+CREATE INDEX storyboard_process_id_idx ON storyboard_process USING hash (PROCESS_ID);
+CREATE INDEX storyboard_process_main_process_id_idx ON storyboard_process USING hash (MAIN_PROCESS_ID);
 CREATE INDEX frame_number_idx ON storyboard_process (FRAME_NUMBER);
 
 CREATE TABLE adevertising_process(
@@ -179,8 +178,8 @@ CREATE TABLE adevertising_process(
     INSERTION_LOCATION INSERTION_LOCATIONS NOT NULL,
     CONSTRAINT ADVERTISNG_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON adevertising_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON adevertising_process (MAIN_PROCESS_ID);
+CREATE INDEX adevertising_process_id_idx ON adevertising_process USING hash (PROCESS_ID);
+CREATE INDEX adevertising_process_main_process_id_idx ON adevertising_process USING hash (MAIN_PROCESS_ID);
 CREATE INDEX insertion_location_idx ON adevertising_process (INSERTION_LOCATION);
 
 CREATE TABLE adding_sound_process(
@@ -189,8 +188,8 @@ CREATE TABLE adding_sound_process(
     SOUND_TYPE SOUND_TYPES NOT NULL,
     CONSTRAINT ADDING_SOUND_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON adding_sound_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON adding_sound_process (MAIN_PROCESS_ID);
+CREATE INDEX adding_sound_process_id_idx ON adding_sound_process USING hash (PROCESS_ID);
+CREATE INDEX adding_sound_process_main_process_id_idx ON adding_sound_process USING hash (MAIN_PROCESS_ID);
 CREATE INDEX sound_type ON adding_sound_process (SOUND_TYPE);
 
 CREATE TABLE digitization_process(
@@ -201,8 +200,8 @@ CREATE TABLE digitization_process(
     CONSTRAINT DIGITIZATION_PROCESS_PK PRIMARY KEY(PROCESS_ID),
     CONSTRAINT DIGITIZATION_PROCESS_SKETCHES_NUMBER_CHECK CHECK(SKETCHES_NUMBER >= 0)
 );
-CREATE INDEX processe_id_idx ON digitization_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON digitization_process (MAIN_PROCESS_ID);
+CREATE INDEX digitization_process_id_idx ON digitization_process USING hash (PROCESS_ID);
+CREATE INDEX digitization_process_main_process_id_idx ON digitization_process USING hash (MAIN_PROCESS_ID);
 CREATE INDEX digitization_type_idx ON digitization_process (DIGITIZATION_TYPE);
 
 CREATE TABLE smoothing_process(
@@ -210,8 +209,8 @@ CREATE TABLE smoothing_process(
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT SMOOTHING_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON smoothing_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON smoothing_process (MAIN_PROCESS_ID);
+CREATE INDEX smoothing_process_id_idx ON smoothing_process USING hash (PROCESS_ID);
+CREATE INDEX smoothing_process_main_process_id_idx ON smoothing_process USING hash (MAIN_PROCESS_ID);
 
 CREATE TABLE revisions_process(
     PROCESS_ID SERIAL,
@@ -219,8 +218,8 @@ CREATE TABLE revisions_process(
     REVISION_TYPE REVISION_TYPES NOT NULL,
     CONSTRAINT REVISIONS_PROCESS PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON revisions_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON revisions_process (MAIN_PROCESS_ID);
+CREATE INDEX revisions_process_id_idx ON revisions_process USING hash (PROCESS_ID);
+CREATE INDEX revisions_process_main_process_id_idx ON revisions_process USING hash (MAIN_PROCESS_ID);
 CREATE INDEX revision_type_idx ON revisions_process (REVISION_TYPE);
 
 CREATE TABLE coloring_process(
@@ -229,8 +228,8 @@ CREATE TABLE coloring_process(
     COLORING_TYPE COLORING_TYPES NOT NULL,
     CONSTRAINT COLORING_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON coloring_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON coloring_process (MAIN_PROCESS_ID);
+CREATE INDEX coloring_process_id_idx ON coloring_process USING hash (PROCESS_ID);
+CREATE INDEX coloring_process_main_process_id_idx ON coloring_process USING hash (MAIN_PROCESS_ID);
 CREATE INDEX coloring_type_idx ON coloring_process (COLORING_TYPE);
 
 CREATE TABLE animation_process(
@@ -241,8 +240,8 @@ CREATE TABLE animation_process(
     CONSTRAINT ANIMATION_PROCESS_PK PRIMARY KEY(PROCESS_ID),
     CONSTRAINT ANIMATION_PROCESS_FRAME_RATE_CHECK CHECK(FRAME_RATE > 0)
 );
-CREATE INDEX processe_id_idx ON animation_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON animation_process (MAIN_PROCESS_ID);
+CREATE INDEX animation_process_id_idx ON animation_process USING hash (PROCESS_ID);
+CREATE INDEX animation_process_main_process_id_idx ON animation_process USING hash (MAIN_PROCESS_ID);
 CREATE INDEX animation_technology_idx ON animation_process (ANIMATION_TECHNOLOGY);
 
 CREATE TABLE adding_effect_process(
@@ -251,8 +250,8 @@ CREATE TABLE adding_effect_process(
     EFFECT_LEVEL EFFECT_LEVELS NOT NULL,
     CONSTRAINT ADDING_EFFECT_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON adding_effect_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON adding_effect_process (MAIN_PROCESS_ID);
+CREATE INDEX adding_effect_process_id_idx ON adding_effect_process USING hash (PROCESS_ID);
+CREATE INDEX adding_effect_process_main_process_id_idx ON adding_effect_process USING hash (MAIN_PROCESS_ID);
 CREATE INDEX effect_level_idx ON adding_effect_process (EFFECT_LEVEL);
 
 CREATE TABLE location_drawing_process(
@@ -260,32 +259,32 @@ CREATE TABLE location_drawing_process(
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT LOCATION_DRAWING_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON location_drawing_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON location_drawing_process (MAIN_PROCESS_ID);
+CREATE INDEX location_drawing_process_id_idx ON location_drawing_process USING hash (PROCESS_ID);
+CREATE INDEX location_drawing_process_main_process_id_idx ON location_drawing_process USING hash (MAIN_PROCESS_ID);
 
 CREATE TABLE battle_drawing_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT BATTLE_DRAWING_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON battle_drawing_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON battle_drawing_process (MAIN_PROCESS_ID);
+CREATE INDEX battle_drawing_process_id_idx ON battle_drawing_process USING hash (PROCESS_ID);
+CREATE INDEX battle_drawing_process_main_process_id_idx ON battle_drawing_process USING hash (MAIN_PROCESS_ID);
 
 CREATE TABLE character_drawing_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT CHARACTER_DRAWING_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON character_drawing_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON character_drawing_process (MAIN_PROCESS_ID);
+CREATE INDEX character_drawing_process_id_idx ON character_drawing_process USING hash (PROCESS_ID);
+CREATE INDEX character_drawing_process_main_process_id_idx ON character_drawing_process USING hash (MAIN_PROCESS_ID);
 
 CREATE TABLE character_select_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT CHARACTER_SELECT_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON character_select_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON character_select_process (MAIN_PROCESS_ID);
+CREATE INDEX character_select_process_id_idx ON character_select_process USING hash (PROCESS_ID);
+CREATE INDEX character_select_process_main_process_id_idx ON character_select_process USING hash (MAIN_PROCESS_ID);
 
 CREATE TABLE voice_acting_process(
     PROCESS_ID SERIAL,
@@ -293,8 +292,8 @@ CREATE TABLE voice_acting_process(
     VOICE_ACTING_TYPE VOICE_ACTING_TYPES NOT NULL,
     CONSTRAINT VOICE_ACTING_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON voice_acting_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON voice_acting_process (MAIN_PROCESS_ID);
+CREATE INDEX voice_acting_process_id_idx ON voice_acting_process USING hash (PROCESS_ID);
+CREATE INDEX voice_acting_process_main_process_id_idx ON voice_acting_process USING hash (MAIN_PROCESS_ID);
 CREATE INDEX voice_acting_type ON voice_acting_process (VOICE_ACTING_TYPE);
 
 CREATE TABLE ability_description_process(
@@ -302,40 +301,40 @@ CREATE TABLE ability_description_process(
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ABILITY_DESCRIPTION_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON ability_description_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON ability_description_process (MAIN_PROCESS_ID);
+CREATE INDEX ability_description_process_id_idx ON ability_description_process USING hash (PROCESS_ID);
+CREATE INDEX ability_description_process_main_process_id_idx ON ability_description_process USING hash (MAIN_PROCESS_ID);
 
 CREATE TABLE character_description_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT CHARACTER_DESCRIPTION_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON character_description_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON character_description_process (MAIN_PROCESS_ID);
+CREATE INDEX character_description_process_id_idx ON character_description_process USING hash (PROCESS_ID);
+CREATE INDEX character_description_process_main_process_id_idx ON character_description_process USING hash (MAIN_PROCESS_ID);
 
 CREATE TABLE location_description_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT LOCATION_DESCRIPTION_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON location_description_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON location_description_process (MAIN_PROCESS_ID);
+CREATE INDEX location_description_process_id_idx ON location_description_process USING hash (PROCESS_ID);
+CREATE INDEX location_description_process_main_process_id_idx ON location_description_process USING hash (MAIN_PROCESS_ID);
 
 CREATE TABLE battle_description_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT BATTLE_DESCRIPTION_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON battle_description_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON battle_description_process (MAIN_PROCESS_ID);
+CREATE INDEX battle_description_process_id_idx ON battle_description_process USING hash (PROCESS_ID);
+CREATE INDEX battle_description_process_main_process_id_idx ON battle_description_process USING hash (MAIN_PROCESS_ID);
 
 CREATE TABLE plot_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT PLOT_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX processe_id_idx ON plot_process (PROCESS_ID);
-CREATE INDEX main_process_id_idx ON plot_process (MAIN_PROCESS_ID);
+CREATE INDEX plot_process_id_idx ON plot_process USING hash (PROCESS_ID);
+CREATE INDEX plot_process_main_process_id_idx ON plot_process USING hash (MAIN_PROCESS_ID);
 
 /*
 *создание сущности артефакт
@@ -349,8 +348,8 @@ CREATE TABLE artifacts(
     CONSTRAINT ARTIFACTS_PK PRIMARY KEY(ARTIFACT_ID),
     CONSTRAINT ARTIFACTS_SIZE_CHECK CHECK(SIZE >= 0)
 );
-CREATE INDEX artifact_id_idx ON artifacts (ARTIFACT_ID);
-CREATE INDEX main_worker_id_idx ON artifacts (MAIN_WORKER_ID);
+CREATE INDEX artifact_id_idx ON artifacts USING hash (ARTIFACT_ID);
+CREATE INDEX artifacts_main_worker_id_idx ON artifacts USING hash (MAIN_WORKER_ID);
 CREATE INDEX artifact_type_idx ON artifacts (ARTIFACT_TYPE);
 CREATE INDEX upload_date_idx ON artifacts (UPLOAD_DATE DESC);
 CREATE INDEX artifact_type_upload_date_idx ON artifacts (ARTIFACT_TYPE, UPLOAD_DATE);
@@ -435,48 +434,48 @@ CREATE TABLE revision_storyboarding(
     PROCESS_ID INTEGER REFERENCES storyboard_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT REVISION_STORYBOARDING_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
-CREATE INDEX revision_id_idx ON revision_storyboarding (REVISION_ID);
-CREATE INDEX process_id_idx ON revision_storyboarding (PROCESS_ID);
+CREATE INDEX revision_storyboarding_revision_id_idx ON revision_storyboarding USING hash (REVISION_ID);
+CREATE INDEX revision_storyboarding_process_id_idx ON revision_storyboarding USING hash (PROCESS_ID);
 
 CREATE TABLE revision_adding_sound(
     REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PROCESS_ID INTEGER REFERENCES adding_sound_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT REVISION_ADDING_SOUND_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
-CREATE INDEX revision_id_idx ON revision_adding_sound (REVISION_ID);
-CREATE INDEX process_id_idx ON revision_adding_sound (PROCESS_ID);
+CREATE INDEX revision_adding_sound_revision_id_idx ON revision_adding_sound USING hash (REVISION_ID);
+CREATE INDEX revision_adding_sound_process_id_idx ON revision_adding_sound USING hash (PROCESS_ID);
 
 CREATE TABLE revision_smoothing(
     REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PROCESS_ID INTEGER REFERENCES smoothing_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT REVISION_SMOOTHING_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
-CREATE INDEX revision_id_idx ON revision_smoothing (REVISION_ID);
-CREATE INDEX process_id_idx ON revision_smoothing (PROCESS_ID);
+CREATE INDEX revision_smoothing_revision_id_idx ON revision_smoothing USING hash (REVISION_ID);
+CREATE INDEX revision_smoothing_process_id_idx ON revision_smoothing USING hash (PROCESS_ID);
 
 CREATE TABLE revision_adding_effects(
     REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PROCESS_ID INTEGER REFERENCES adding_effect_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT REVISION_ADDING_EFFECTS_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
-CREATE INDEX revision_id_idx ON revision_adding_effects (REVISION_ID);
-CREATE INDEX process_id_idx ON revision_adding_effects (PROCESS_ID);
+CREATE INDEX revision_adding_effects_revision_id_idx ON revision_adding_effects USING hash (REVISION_ID);
+CREATE INDEX revision_adding_effects_process_id_idx ON revision_adding_effects USING hash (PROCESS_ID);
 
 CREATE TABLE revision_animation(
     REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PROCESS_ID INTEGER REFERENCES animation_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT REVISION_ANIMATION_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
-CREATE INDEX revision_id_idx ON revision_animation (REVISION_ID);
-CREATE INDEX process_id_idx ON revision_animation (PROCESS_ID);
+CREATE INDEX revision_animation_revision_id_idx ON revision_animation USING hash (REVISION_ID);
+CREATE INDEX revision_animation_process_id_idx ON revision_animation USING hash (PROCESS_ID);
 
 CREATE TABLE revision_coloring(
     REVISION_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PROCESS_ID INTEGER REFERENCES coloring_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT REVISION_COLORING_PK PRIMARY KEY(REVISION_ID, PROCESS_ID)
 );
-CREATE INDEX revision_id_idx ON revision_coloring (REVISION_ID);
-CREATE INDEX process_id_idx ON revision_coloring (PROCESS_ID);
+CREATE INDEX revision_coloring_revision_id_idx ON revision_coloring USING hash (REVISION_ID);
+CREATE INDEX revision_coloring_process_id_idx ON revision_coloring USING hash (PROCESS_ID);
 
 /*
 *создание ассоциаций между процессами и выполняющими их работниками
@@ -486,160 +485,160 @@ CREATE TABLE artist_storyboard_process(
     WORKER_ID INTEGER REFERENCES storyboard_artists(WORKER_ID) ON UPDATE CASCADE ON  DELETE CASCADE,
     CONSTRAINT ARTIST_STORYBOARD_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON artist_storyboard_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON artist_storyboard_process (WORKER_ID);
+CREATE INDEX artist_storyboard_process_id_idx ON artist_storyboard_process USING hash (PROCESS_ID);
+CREATE INDEX artist_storyboard_process_worker_id_idx ON artist_storyboard_process USING hash (WORKER_ID);
 
 CREATE TABLE producer_advertising_process(
     PROCESS_ID INTEGER REFERENCES adevertising_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES producers(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT PRODUCER_ADVERTISING_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON producer_advertising_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON producer_advertising_process (WORKER_ID);
+CREATE INDEX producer_advertising_process_id_idx ON producer_advertising_process USING hash (PROCESS_ID);
+CREATE INDEX producer_advertising_process_worker_id_idx ON producer_advertising_process USING hash (WORKER_ID);
 
 CREATE TABLE audio_adding_process(
     PROCESS_ID INTEGER REFERENCES adding_sound_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES audio_specialist(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT AUDIO_ADDING_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON audio_adding_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON audio_adding_process (WORKER_ID);
+CREATE INDEX audio_adding_process_id_idx ON audio_adding_process USING hash (PROCESS_ID);
+CREATE INDEX audio_adding_process_worker_id_idx ON audio_adding_process USING hash (WORKER_ID);
 
 CREATE TABLE digitizers_digitization_process(
     PROCESS_ID INTEGER REFERENCES digitization_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES digitizers(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT DIGITIZERS_DIGITIZATION_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON digitizers_digitization_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON digitizers_digitization_process (WORKER_ID);
+CREATE INDEX digitizers_digitization_process_id_idx ON digitizers_digitization_process USING hash (PROCESS_ID);
+CREATE INDEX digitizers_digitization_process_worker_id_idx ON digitizers_digitization_process USING hash (WORKER_ID);
 
 CREATE TABLE smoother_smoothing_process(
     PROCESS_ID INTEGER REFERENCES smoothing_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES smoothing_specialist(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT SMOOTHER_SMOOTHING_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON smoother_smoothing_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON smoother_smoothing_process (WORKER_ID);
+CREATE INDEX smoother_smoothing_process_id_idx ON smoother_smoothing_process USING hash (PROCESS_ID);
+CREATE INDEX smoother_smoothing_process_worker_id_idx ON smoother_smoothing_process USING hash (WORKER_ID);
 
 CREATE TABLE art_director_revision_process(
     PROCESS_ID INTEGER REFERENCES revisions_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES art_director(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ART_DIRECTOR_REVISION_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON art_director_revision_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON art_director_revision_process (WORKER_ID);
+CREATE INDEX art_director_revision_process_id_idx ON art_director_revision_process USING hash (PROCESS_ID);
+CREATE INDEX art_director_revision_worker_id_idx ON art_director_revision_process USING hash (WORKER_ID);
 
 CREATE TABLE artist_coloring_process(
     PROCESS_ID INTEGER REFERENCES coloring_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES artists(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ARTIST_COLORING_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON artist_coloring_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON artist_coloring_process (WORKER_ID);
+CREATE INDEX artist_coloring_process_id_idx ON artist_coloring_process USING hash (PROCESS_ID);
+CREATE INDEX artist_coloring_process_worker_id_idx ON artist_coloring_process USING hash (WORKER_ID);
 
 CREATE TABLE artist_animation_process(
     PROCESS_ID INTEGER REFERENCES animation_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES artists(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ARTIST_ANIMATION_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON artist_animation_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON artist_animation_process (WORKER_ID);
+CREATE INDEX artist_animation_process_id_idx ON artist_animation_process USING hash (PROCESS_ID);
+CREATE INDEX artist_animation_process_worker_id_idx ON artist_animation_process USING hash (WORKER_ID);
 
 CREATE TABLE artist_effects_process(
     PROCESS_ID INTEGER REFERENCES adding_effect_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES artists(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ARTIST_EFFECTS_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON artist_effects_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON artist_effects_process (WORKER_ID);
+CREATE INDEX artist_effects_process_id_idx ON artist_effects_process USING hash (PROCESS_ID);
+CREATE INDEX artist_effects_process_worker_id_idx ON artist_effects_process USING hash (WORKER_ID);
 
 CREATE TABLE artist_location_drawing_process(
     PROCESS_ID INTEGER REFERENCES location_drawing_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES artists(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ARTIST_LOCATION_DRAWING_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON artist_location_drawing_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON artist_location_drawing_process (WORKER_ID);
+CREATE INDEX artist_location_drawing_process_id_idx ON artist_location_drawing_process USING hash (PROCESS_ID);
+CREATE INDEX artist_location_drawing_process_worker_id_idx ON artist_location_drawing_process USING hash (WORKER_ID);
 
 CREATE TABLE artist_battle_drawing_process(
     PROCESS_ID INTEGER REFERENCES battle_drawing_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES artists(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ARTIST_BATTLE_DRAWING_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON artist_battle_drawing_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON artist_battle_drawing_process (WORKER_ID);
+CREATE INDEX artist_battle_drawing_process_id_idx ON artist_battle_drawing_process USING hash (PROCESS_ID);
+CREATE INDEX artist_battle_drawing_process_worker_id_idx ON artist_battle_drawing_process USING hash (WORKER_ID);
 
 CREATE TABLE artist_character_drawing_process(
     PROCESS_ID INTEGER REFERENCES character_drawing_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES artists(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ARTIST_CHARACTER_DRAWING_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON artist_character_drawing_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON artist_character_drawing_process (WORKER_ID);
+CREATE INDEX artist_character_drawing_process_id_idx ON artist_character_drawing_process USING hash (PROCESS_ID);
+CREATE INDEX artist_character_drawing_process_worker_id_idx ON artist_character_drawing_process USING hash (WORKER_ID);
 
 CREATE TABLE editors_character_process(
     PROCESS_ID INTEGER REFERENCES character_select_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES editors(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT EDITORS_CHARACTER_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON editors_character_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON editors_character_process (WORKER_ID);
+CREATE INDEX editors_character_process_id_idx ON editors_character_process USING hash (PROCESS_ID);
+CREATE INDEX editors_character_process_worker_id_idx ON editors_character_process USING hash (WORKER_ID);
 
 CREATE TABLE recorder_voice_acting_process(
     PROCESS_ID INTEGER REFERENCES voice_acting_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES recording_actors(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT RECORDER_VOICE_ACTING_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON recorder_voice_acting_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON recorder_voice_acting_process (WORKER_ID);
+CREATE INDEX recorder_voice_acting_process_id_idx ON recorder_voice_acting_process USING hash (PROCESS_ID);
+CREATE INDEX recorder_voice_acting_process_worker_id_idx ON recorder_voice_acting_process USING hash (WORKER_ID);
 
 CREATE TABLE designer_ability_process(
     PROCESS_ID INTEGER REFERENCES ability_description_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES roles_designers(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT DESIGNER_ABILITY_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON designer_ability_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON designer_ability_process (WORKER_ID);
+CREATE INDEX designer_ability_process_id_idx ON designer_ability_process USING hash (PROCESS_ID);
+CREATE INDEX designer_ability_process_worker_id_idx ON designer_ability_process USING hash (WORKER_ID);
 
 CREATE TABLE designer_character_process(
     PROCESS_ID INTEGER REFERENCES character_description_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES roles_designers(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT DESIGNER_CHARACTER_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON designer_character_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON designer_character_process (WORKER_ID);
+CREATE INDEX designer_character_process_id_idx ON designer_character_process USING hash (PROCESS_ID);
+CREATE INDEX designer_character_process_worker_id_idx ON designer_character_process USING hash (WORKER_ID);
 
 CREATE TABLE regisseur_location_process(
     PROCESS_ID INTEGER REFERENCES location_description_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES regisseurs(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT REGISSEUR_LOCATION_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON regisseur_location_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON regisseur_location_process (WORKER_ID);
+CREATE INDEX regisseur_location_process_id_idx ON regisseur_location_process USING hash (PROCESS_ID);
+CREATE INDEX regisseur_location_process_worker_id_idx ON regisseur_location_process USING hash (WORKER_ID);
 
 CREATE TABLE screenwriter_battle_process(
     PROCESS_ID INTEGER REFERENCES battle_description_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES screenwriters(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT SCREENWRITER_BATTLE_PROCESS_Pk PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON screenwriter_battle_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON screenwriter_battle_process (WORKER_ID);
+CREATE INDEX screenwriter_battle_process_id_idx ON screenwriter_battle_process USING hash (PROCESS_ID);
+CREATE INDEX screenwriter_battle_process_worker_id_idx ON screenwriter_battle_process USING hash (WORKER_ID);
 
 CREATE TABLE regisseurs_plot_process(
     PROCESS_ID INTEGER REFERENCES plot_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES regisseurs(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT REGISSEURS_PLOT_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON regisseurs_plot_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON regisseurs_plot_process (WORKER_ID);
+CREATE INDEX regisseurs_plot_process_id_idx ON regisseurs_plot_process USING hash (PROCESS_ID);
+CREATE INDEX regisseurs_plot_process_worker_id_idx ON regisseurs_plot_process USING hash (WORKER_ID);
 
 CREATE TABLE screenwriter_plot_process(
     PROCESS_ID INTEGER REFERENCES plot_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES screenwriters(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT SCREENWRITER_PLOT_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
-CREATE INDEX process_id_idx ON screenwriter_plot_process (PROCESS_ID);
-CREATE INDEX worker_id_idx ON screenwriter_plot_process (WORKER_ID);
+CREATE INDEX screenwriter_plot_process_id_idx ON screenwriter_plot_process USING hash (PROCESS_ID);
+CREATE INDEX screenwriter_plot_process_worker_id_idx ON screenwriter_plot_process USING hash (WORKER_ID);
 
 /*
 *создание ассоциации между процессами и артифактами
@@ -649,8 +648,8 @@ CREATE TABLE process_artifact(
     ARTIFACT_ID INTEGER REFERENCES artifacts(ARTIFACT_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT PROCESS_ARTIFACT_PK PRIMARY KEY(MAIN_PROCESS_ID, ARTIFACT_ID)
 );
-CREATE INDEX main_process_id_idx ON process_artifact (MAIN_PROCESS_ID);
-CREATE INDEX artifact_id_idx ON process_artifact (ARTIFACT_ID);
+CREATE INDEX process_artifact_main_process_id_idx ON process_artifact USING hash (MAIN_PROCESS_ID);
+CREATE INDEX process_artifact_artifact_id_idx ON process_artifact USING hash (ARTIFACT_ID);
 
 
 /*
@@ -661,56 +660,56 @@ CREATE TABLE events_plots(
     PLOT_ID INTEGER REFERENCES plot(PLOT_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT EVENTS_PLOTS_PK PRIMARY KEY(EVENT_ID, PLOT_ID)
 );
-CREATE INDEX event_id_idx ON events_plots (EVENT_ID);
-CREATE INDEX plot_id_idx ON events_plots (PLOT_ID);
+CREATE INDEX events_plots_event_id_idx ON events_plots USING hash (EVENT_ID);
+CREATE INDEX events_plots_plot_id_idx ON events_plots USING hash (PLOT_ID);
 
 CREATE TABLE event_location(
     EVENT_ID INTEGER REFERENCES events(EVENT_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     LOCATION_ID INTEGER REFERENCES locations(LOCATION_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT EVENT_LOCATION_PK PRIMARY KEY(EVENT_ID, LOCATION_ID)
 );
-CREATE INDEX event_id_idx ON event_location (EVENT_ID);
-CREATE INDEX location_id_idx ON event_location (LOCATION_ID);
+CREATE INDEX event_location_event_id_idx ON event_location USING hash (EVENT_ID);
+CREATE INDEX event_location_location_id_idx ON event_location USING hash (LOCATION_ID);
 
 CREATE TABLE events_characters(
     EVENT_ID INTEGER REFERENCES events(EVENT_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CHARACTER_ID INTEGER REFERENCES character(CHARACTER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT EVENTS_CHARACTERS_PK PRIMARY KEY(EVENT_ID, CHARACTER_ID)
 );
-CREATE INDEX event_id_idx ON events_characters (EVENT_ID);
-CREATE INDEX character_id_idx ON events_characters (CHARACTER_ID);
+CREATE INDEX events_characters_event_id_idx ON events_characters USING hash (EVENT_ID);
+CREATE INDEX events_characters_character_id_idx ON events_characters USING hash (CHARACTER_ID);
 
 CREATE TABLE battle_location(
     LOCATION_ID INTEGER REFERENCES locations(LOCATION_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     BATTLE_ID INTEGER REFERENCES battle(BATTLE_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT BATTLE_LOCATION_PK PRIMARY KEY(BATTLE_ID, LOCATION_ID)
 );
-CREATE INDEX location_id_idx ON battle_location (LOCATION_ID);
-CREATE INDEX battle_id_idx ON battle_location (BATTLE_ID);
+CREATE INDEX battle_location_location_id_idx ON battle_location USING hash (LOCATION_ID);
+CREATE INDEX battle_location_battle_id_idx ON battle_location USING hash (BATTLE_ID);
 
 CREATE TABLE battle_abilities(
     BATTLE_ID INTEGER REFERENCES battle(BATTLE_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     ABILITY_ID INTEGER REFERENCES abilities(ABILITY_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT BATTLE_ABILITIES_PK PRIMARY KEY(BATTLE_ID, ABILITY_ID)
 );
-CREATE INDEX battle_id_idx ON battle_abilities (BATTLE_ID);
-CREATE INDEX ability_id_idx ON battle_abilities (ABILITY_ID);
+CREATE INDEX battle_abilities_battle_id_idx ON battle_abilities USING hash (BATTLE_ID);
+CREATE INDEX battle_abilities_ability_id_idx ON battle_abilities USING hash (ABILITY_ID);
 
 CREATE TABLE battle_characters(
     BATTLE_ID INTEGER REFERENCES battle(BATTLE_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CHARACTER_ID INTEGER REFERENCES character(CHARACTER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT BATTLE_CHARACTERS_PK PRIMARY KEY(BATTLE_ID, CHARACTER_ID)
 );
-CREATE INDEX battle_id_idx ON battle_characters (BATTLE_ID);
-CREATE INDEX character_id_idx ON battle_characters (CHARACTER_ID);
+CREATE INDEX battle_characters_battle_id_idx ON battle_characters USING hash (BATTLE_ID);
+CREATE INDEX battle_characters_character_id_idx ON battle_characters USING hash (CHARACTER_ID);
 
 CREATE TABLE characters_abilities(
     CHARACTER_ID INTEGER REFERENCES character(CHARACTER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     ABILITY_ID INTEGER REFERENCES abilities(ABILITY_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT CHARACTERS_ABILITIES_PK PRIMARY KEY(CHARACTER_ID, ABILITY_ID)
 );
-CREATE INDEX character_id_idx ON characters_abilities (CHARACTER_ID);
-CREATE INDEX ability_id_idx ON characters_abilities (ABILITY_ID);
+CREATE INDEX characters_abilities_character_id_idx ON characters_abilities USING hash (CHARACTER_ID);
+CREATE INDEX characters_abilities_ability_id_idx ON characters_abilities USING hash (ABILITY_ID);
 
 /*
 *табличка для логирования инфы о триггерах
@@ -1066,7 +1065,7 @@ TABLE(
     GENDER VARCHAR, 
     AGE INTEGER, 
     PLACE_OF_BIRTH TEXT,
-    POSITION RECORDING_ACTOR_POSITIONS) AS
+    POS RECORDING_ACTORS_POSITIONS) AS
 $body$
 BEGIN
     RETURN QUERY SELECT ra.WORKER_ID, w.NAME, w.SECOND_NAME, w.GENDER, w.AGE, w.PLACE_OF_BIRTH, ra.POSITION FROM recording_actors AS ra 
@@ -1083,7 +1082,7 @@ TABLE(
     AGE INTEGER, 
     PLACE_OF_BIRTH TEXT,
     GENRES VARCHAR[],
-    POSITION EDITOR_POSITIONS) AS
+    POS EDITOR_POSITIONS) AS
 $body$
 BEGIN
     RETURN QUERY 
@@ -1668,14 +1667,14 @@ $$;
 /*
 *процедуры для артифактов
 */
-CREATE OR REPLACE PROCEDURE create_artifact(
+CREATE OR REPLACE FUNCTION create_artifact(
     upload_user INTEGER,
     artifact_type ARTIFACT_TYPES,
     size INTEGER,
     upload_date DATE
-) LANGUAGE plpgsql AS
+) RETURNS VOID AS
 $$
 BEGIN
     INSERT INTO artifacts(MAIN_WORKER_ID, ARTIFACT_TYPE, SIZE, UPLOAD_DATE) VALUES(upload_user, artifact_type, size, upload_date);
 END
-$$;
+$$ LANGUAGE plpgsql VOLATILE;
