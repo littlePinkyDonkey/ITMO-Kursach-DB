@@ -1171,11 +1171,12 @@ CREATE OR REPLACE FUNCTION add_storyboard_artist(
     gender VARCHAR,
     age INTEGER,
     place_of_birth TEXT
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO storyboard_artists(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1186,11 +1187,12 @@ CREATE OR REPLACE FUNCTION add_producer(
     age INTEGER,
     place_of_birth TEXT,
     role PRODUCER_ROLES
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO producers(MAIN_WORKER_ID, ROLE) VALUES(currval('workers_main_worker_id_seq'), role);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1200,11 +1202,12 @@ CREATE OR REPLACE FUNCTION add_audio_specialist(
     gender VARCHAR,
     age INTEGER,
     place_of_birth TEXT
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO audio_specialist(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1214,11 +1217,12 @@ CREATE OR REPLACE FUNCTION add_digitizer(
     gender VARCHAR,
     age INTEGER,
     place_of_birth TEXT
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO digitizers(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1228,11 +1232,12 @@ CREATE OR REPLACE FUNCTION add_smoothing_specialist(
     gender VARCHAR,
     age INTEGER,
     place_of_birth TEXT
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO smoothing_specialist(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1242,11 +1247,12 @@ CREATE OR REPLACE FUNCTION add_art_director(
     gender VARCHAR,
     age INTEGER,
     place_of_birth TEXT
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO art_director(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1258,11 +1264,12 @@ CREATE OR REPLACE FUNCTION add_screenwriter(
     place_of_birth TEXT,
     films_number INTEGER,
     genres VARCHAR[]
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO screenwriters(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(currval('workers_main_worker_id_seq'), films_number, genres);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1274,11 +1281,12 @@ CREATE OR REPLACE FUNCTION add_regisseur(
     place_of_birth TEXT,
     films_number INTEGER,
     genres VARCHAR[]
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO regisseurs(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(currval('workers_main_worker_id_seq'), films_number, genres);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1288,11 +1296,12 @@ CREATE OR REPLACE FUNCTION add_roles_designer(
     gender VARCHAR,
     age INTEGER,
     place_of_birth TEXT
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO roles_designers(MAIN_WORKER_ID) VALUES(currval('workers_main_worker_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1303,11 +1312,12 @@ CREATE OR REPLACE FUNCTION add_recording_actor(
     age INTEGER,
     place_of_birth TEXT,
     position RECORDING_ACTORS_POSITIONS
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO recording_actors(MAIN_WORKER_ID, POSITION) VALUES(currval('workers_main_worker_id_seq'), position);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1319,11 +1329,12 @@ CREATE OR REPLACE FUNCTION add_editor(
     place_of_birth TEXT,
     genres VARCHAR[],
     position EDITOR_POSITIONS
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO editors(MAIN_WORKER_ID, GENRES, POSITION) VALUES(currval('workers_main_worker_id_seq'), genres, position);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1335,11 +1346,12 @@ CREATE OR REPLACE FUNCTION add_artist(
     place_of_birth TEXT,
     artist_type ARTIST_TYPES,
     using_technology USING_TECHNOLOGIES
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
     INSERT INTO artists(MAIN_WORKER_ID, ARTIST_TYPE, USING_TECHNOLOGY) VALUES(currval('workers_main_worker_id_seq'), artist_type, using_technology);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1354,12 +1366,13 @@ CREATE OR REPLACE FUNCTION create_storyboard_process(
     estimation_time INTERVAL,
     start_date DATE,
     frame_number INTEGER
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO storyboard_process(MAIN_PROCESS_ID, FRAME_NUMBER) VALUES(currval('processes_main_process_id_seq'), frame_number);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1371,13 +1384,14 @@ CREATE OR REPLACE FUNCTION create_advertising_process(
     estimation_time INTERVAL,
     start_date DATE,
     insertion_location INSERTION_LOCATIONS
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO adevertising_process(MAIN_PROCESS_ID, INSERTION_LOCATION) 
     VALUES(currval('processes_main_process_id_seq'), insertion_location);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1389,12 +1403,13 @@ CREATE OR REPLACE FUNCTION create_adding_sound_effect_process(
     estimation_time INTERVAL,
     start_date DATE,
     sound_type SOUND_TYPES
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO adding_sound_process(MAIN_PROCESS_ID, SOUND_TYPE) VALUES(currval('processes_main_process_id_seq'), sound_type);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1407,13 +1422,14 @@ CREATE OR REPLACE FUNCTION create_digitization_process(
     start_date DATE,
     sketches_number INTEGER,
     digitization_type DIGITIZATION_TYPES
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO digitization_process(MAIN_PROCESS_ID, SKETCHES_NUMBER, DIGITIZATION_TYPE) 
     VALUES(currval('processes_main_process_id_seq'), sketches_number, digitization_type);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1424,12 +1440,13 @@ CREATE OR REPLACE FUNCTION create_smoothing_process(
     status PROCESS_STATUS,
     estimation_time INTERVAL,
     start_date DATE
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO smoothing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1441,12 +1458,13 @@ CREATE OR REPLACE FUNCTION create_revision_process(
     estimation_time INTERVAL,
     start_date DATE,
     revision_type REVISION_TYPES
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO revisions_process(MAIN_PROCESS_ID, REVISION_TYPE) VALUES(currval('processes_main_process_id_seq'), revision_type);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1458,12 +1476,13 @@ CREATE OR REPLACE FUNCTION create_coloring_process(
     estimation_time INTERVAL,
     start_date DATE,
     coloring_type COLORING_TYPES
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO coloring_process(MAIN_PROCESS_ID, COLORING_TYPE) VALUES(currval('processes_main_process_id_seq'), coloring_type);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1476,13 +1495,14 @@ CREATE OR REPLACE FUNCTION create_animation_process(
     start_date DATE,
     frame_rate INTEGER,
     animation_technology VARCHAR
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO animation_process(MAIN_PROCESS_ID, FRAME_RATE, ANIMATION_TECHNOLOGY) 
     VALUES(currval('processes_main_process_id_seq'), frame_rate, animation_technology);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1494,12 +1514,13 @@ CREATE OR REPLACE FUNCTION create_adding_effect_process(
     estimation_time INTERVAL,
     start_date DATE,
     effect_level EFFECT_LEVELS
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO adding_effect_process(MAIN_PROCESS_ID, EFFECT_LEVEL) VALUES(currval('processes_main_process_id_seq'), effect_level);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1510,12 +1531,13 @@ CREATE OR REPLACE FUNCTION create_location_drawing_process(
     status PROCESS_STATUS,
     estimation_time INTERVAL,
     start_date DATE
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO location_drawing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1526,12 +1548,13 @@ CREATE OR REPLACE FUNCTION create_battle_drawing_process(
     status PROCESS_STATUS,
     estimation_time INTERVAL,
     start_date DATE
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO battle_drawing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1542,12 +1565,13 @@ CREATE OR REPLACE FUNCTION create_character_drawing_process(
     status PROCESS_STATUS,
     estimation_time INTERVAL,
     start_date DATE
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO character_drawing_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1558,12 +1582,13 @@ CREATE OR REPLACE FUNCTION create_character_select_process(
     status PROCESS_STATUS,
     estimation_time INTERVAL,
     start_date DATE
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO character_select_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1575,12 +1600,13 @@ CREATE OR REPLACE FUNCTION create_voice_acting_process(
     estimation_time INTERVAL,
     start_date DATE,
     voice_acting_type VOICE_ACTING_TYPES
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO voice_acting_process(MAIN_PROCESS_ID, VOICE_ACTING_TYPE) VALUES(currval('processes_main_process_id_seq'), voice_acting_type);
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1591,12 +1617,13 @@ CREATE OR REPLACE FUNCTION create_ability_description_process(
     status PROCESS_STATUS,
     estimation_time INTERVAL,
     start_date DATE
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO ability_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1607,12 +1634,13 @@ CREATE OR REPLACE FUNCTION create_character_description_process(
     status PROCESS_STATUS,
     estimation_time INTERVAL,
     start_date DATE
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO character_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1623,12 +1651,13 @@ CREATE OR REPLACE FUNCTION create_location_description_process(
     status PROCESS_STATUS,
     estimation_time INTERVAL,
     start_date DATE
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO location_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1639,12 +1668,13 @@ CREATE OR REPLACE FUNCTION create_battle_description_process(
     status PROCESS_STATUS,
     estimation_time INTERVAL,
     start_date DATE
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO battle_description_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1655,12 +1685,13 @@ CREATE OR REPLACE FUNCTION create_plot_process(
     status PROCESS_STATUS,
     estimation_time INTERVAL,
     start_date DATE
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
     INSERT INTO plot_process(MAIN_PROCESS_ID) VALUES(currval('processes_main_process_id_seq'));
+    RETURNS TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1672,9 +1703,107 @@ CREATE OR REPLACE FUNCTION create_artifact(
     artifact_type ARTIFACT_TYPES,
     size INTEGER,
     upload_date DATE
-) RETURNS VOID AS
+) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO artifacts(MAIN_WORKER_ID, ARTIFACT_TYPE, SIZE, UPLOAD_DATE) VALUES(upload_user, artifact_type, size, upload_date);
+    RETURNS TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+/*
+*процедуры для основных стержневых сущностей
+*/
+CREATE OR REPLACE FUNCTION create_plot(
+    process_id INTEGER,
+    pages_number INTEGER,
+    plot_type PLOT_TYPES,
+    description TEXT,
+    narrative_period INTERVAL,
+    plot_name VARCHAR
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO plot(PROCESS_ID, PAGES_NUMBER, PLOT_TYPE, DESCRIPTION, NARRATIVE_PERIOD, PLOT_NAME) 
+    VALUES(process_id, pages_number, plot_type, description, narrative_period, plot_name);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION create_events(
+    description TEXT,
+    importance_level INTEGER,
+    event_name VARCHAR
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO events(EVENT_NAME, DESCRIPTION, IMPORTANCE_LEVEL) 
+    VALUES(event_name, description, importance_level);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION create_locations(
+    description_id INTEGER,
+    drawing_id INTEGER,
+    area INTEGER,
+    location_type LOCATION_TYPES,
+    for_battle BOOLEAN,
+    location_name VARCHAR
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO locations(DESCRIPTION_ID, DRAWING_ID, AREA, LOCATION_TYPE, FOR_BATTLE, LOCATION_NAME) 
+    VALUES(description_id, drawing_id, area, location_type, for_battle, location_name);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION create_battle(
+    description_id INTEGER,
+    drawing_id INTEGER,
+    duration NUMERIC,
+    battle_name VARCHAR
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO battle(DESCRIPTION_ID, DRAWING_ID, DURATION, BATTLE_NAME) 
+    VALUES(description_id, drawing_id, duration, battle_name);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION create_abilities(
+    description_id INTEGER,
+    ability_name VARCHAR,
+    description TEXT,
+    ability_type ABILITY_TYPES,
+    complexity_level INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO abilities(DESCRIPTION_ID, ABILITY_NAME, DESCRIPTION, ABILITY_TYPE, COMPLEXITY_LEVEL) 
+    VALUES(description_id, ability_name, description, ability_type, complexity_level);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION create_character(
+    voice_acting_id INTEGER,
+    selection_id INTEGER,
+    drawing_id INTEGER,
+    description_id INTEGER,
+    character_name VARCHAR,
+    gender VARCHAR,
+    protagonist BOOLEAN,
+    positive BOOLEAN,
+    age INTEGER,
+    birth_date DATE
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO abilities(VOICE_ACTING_ID, SELECTION_ID, DRAWING_ID, DESCRIPTION_ID, CHARACTER_NAME, GENDER, PROTAGONIST, POSITIVE, AGE, BIRTH_DATE) 
+    VALUES(voice_acting_id, selection_id, drawing_id, description_id, character_name, gender, protagonist, positive, age, birth_date);
+    RETURN TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
