@@ -71,7 +71,7 @@ CREATE INDEX digitizers_main_worker_id_idx ON digitizers USING hash (MAIN_WORKER
 CREATE TABLE smoothing_specialist(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT SMOOTHING_SPECIALIST PRIMARY KEY(WORKER_ID)
+    CONSTRAINT SMOOTHING_SPECIALIST_PK PRIMARY KEY(WORKER_ID)
 );
 CREATE INDEX smoothing_specialist_id_idx ON smoothing_specialist USING hash (WORKER_ID);
 CREATE INDEX smoothing_specialist_main_worker_id_idx ON smoothing_specialist USING hash (MAIN_WORKER_ID);
@@ -216,7 +216,7 @@ CREATE TABLE revisions_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     REVISION_TYPE REVISION_TYPES NOT NULL,
-    CONSTRAINT REVISIONS_PROCESS PRIMARY KEY(PROCESS_ID)
+    CONSTRAINT REVISIONS_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
 CREATE INDEX revisions_process_id_idx ON revisions_process USING hash (PROCESS_ID);
 CREATE INDEX revisions_process_main_process_id_idx ON revisions_process USING hash (MAIN_PROCESS_ID);
@@ -619,7 +619,7 @@ CREATE INDEX regisseur_location_process_worker_id_idx ON regisseur_location_proc
 CREATE TABLE screenwriter_battle_process(
     PROCESS_ID INTEGER REFERENCES battle_description_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES screenwriters(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT SCREENWRITER_BATTLE_PROCESS_Pk PRIMARY KEY(PROCESS_ID, WORKER_ID)
+    CONSTRAINT SCREENWRITER_BATTLE_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
 CREATE INDEX screenwriter_battle_process_id_idx ON screenwriter_battle_process USING hash (PROCESS_ID);
 CREATE INDEX screenwriter_battle_process_worker_id_idx ON screenwriter_battle_process USING hash (WORKER_ID);
@@ -1302,12 +1302,12 @@ CREATE OR REPLACE FUNCTION add_recording_actor(
     gender VARCHAR,
     age INTEGER,
     place_of_birth TEXT,
-    position RECORDING_ACTORS_POSITIONS
+    pos RECORDING_ACTORS_POSITIONS
 ) RETURNS VOID AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
-    INSERT INTO recording_actors(MAIN_WORKER_ID, POSITION) VALUES(currval('workers_main_worker_id_seq'), position);
+    INSERT INTO recording_actors(MAIN_WORKER_ID, POSITION) VALUES(currval('workers_main_worker_id_seq'), pos);
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1318,12 +1318,12 @@ CREATE OR REPLACE FUNCTION add_editor(
     age INTEGER,
     place_of_birth TEXT,
     genres VARCHAR[],
-    position EDITOR_POSITIONS
+    pos EDITOR_POSITIONS
 ) RETURNS VOID AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
-    INSERT INTO editors(MAIN_WORKER_ID, GENRES, POSITION) VALUES(currval('workers_main_worker_id_seq'), genres, position);
+    INSERT INTO editors(MAIN_WORKER_ID, GENRES, POSITION) VALUES(currval('workers_main_worker_id_seq'), genres, pos);
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
