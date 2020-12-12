@@ -172,15 +172,15 @@ CREATE INDEX storyboard_process_id_idx ON storyboard_process USING hash (PROCESS
 CREATE INDEX storyboard_process_main_process_id_idx ON storyboard_process USING hash (MAIN_PROCESS_ID);
 CREATE INDEX frame_number_idx ON storyboard_process (FRAME_NUMBER);
 
-CREATE TABLE adevertising_process(
+CREATE TABLE advertising_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     INSERTION_LOCATION INSERTION_LOCATIONS NOT NULL,
     CONSTRAINT ADVERTISNG_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
-CREATE INDEX adevertising_process_id_idx ON adevertising_process USING hash (PROCESS_ID);
-CREATE INDEX adevertising_process_main_process_id_idx ON adevertising_process USING hash (MAIN_PROCESS_ID);
-CREATE INDEX insertion_location_idx ON adevertising_process (INSERTION_LOCATION);
+CREATE INDEX advertising_process_id_idx ON advertising_process USING hash (PROCESS_ID);
+CREATE INDEX advertising_process_main_process_id_idx ON advertising_process USING hash (MAIN_PROCESS_ID);
+CREATE INDEX insertion_location_idx ON advertising_process (INSERTION_LOCATION);
 
 CREATE TABLE adding_sound_process(
     PROCESS_ID SERIAL,
@@ -489,7 +489,7 @@ CREATE INDEX artist_storyboard_process_id_idx ON artist_storyboard_process USING
 CREATE INDEX artist_storyboard_process_worker_id_idx ON artist_storyboard_process USING hash (WORKER_ID);
 
 CREATE TABLE producer_advertising_process(
-    PROCESS_ID INTEGER REFERENCES adevertising_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    PROCESS_ID INTEGER REFERENCES advertising_process(PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     WORKER_ID INTEGER REFERENCES producers(WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT PRODUCER_ADVERTISING_PROCESS_PK PRIMARY KEY(PROCESS_ID, WORKER_ID)
 );
@@ -1163,7 +1163,7 @@ END
 $body$ LANGUAGE plpgsql STABLE;
 
 /*
-*процедуры для работников
+*функции для добавления работников
 */
 CREATE OR REPLACE FUNCTION add_storyboard_artist(
     name VARCHAR,
@@ -1356,7 +1356,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 /*
-*процедуры для процессов
+*функции для добавления процессов
 */
 CREATE OR REPLACE FUNCTION create_storyboard_process(
     duration INTEGER,
@@ -1389,7 +1389,7 @@ $$
 BEGIN
     INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, ESTIMATION_TIME, START_DATE) 
     VALUES(duration, deadline_date, description, status, estimation_time, start_date);
-    INSERT INTO adevertising_process(MAIN_PROCESS_ID, INSERTION_LOCATION) 
+    INSERT INTO advertising_process(MAIN_PROCESS_ID, INSERTION_LOCATION) 
     VALUES(currval('processes_main_process_id_seq'), insertion_location);
     RETURNS TRUE;
 END
@@ -1696,7 +1696,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 /*
-*процедуры для артифактов
+*функции для добавления артефактов
 */
 CREATE OR REPLACE FUNCTION create_artifact(
     upload_user INTEGER,
@@ -1712,7 +1712,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 /*
-*процедуры для основных стержневых сущностей
+*функции для добавления основных стержневых сущностей
 */
 CREATE OR REPLACE FUNCTION create_plot(
     process_id INTEGER,
@@ -1807,3 +1807,363 @@ BEGIN
     RETURN TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
+
+/*
+*функции для удаления работников
+*/
+CREATE OR REPLACE FUNCTION delete_storyboarder(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM storyboard_artists WHERE storyboard_artists.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_producer(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM producer WHERE producer.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_audio_specialist(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM audio_specialist WHERE audio_specialist.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_digitizer(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM digitizers WHERE digitizers.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_smoothing_specialist(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM smoothing_specialist WHERE smoothing_specialist.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_art_director(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM art_director WHERE art_director.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_screenwriter(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM screenwriters WHERE screenwriters.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_regisseur(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM regisseurs WHERE regisseurs.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_roles_designer(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM roles_designers WHERE roles_designers.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_recording_actor(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM recording_actors WHERE recording_actors.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_editor(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM editors WHERE editors.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_artist(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM artists WHERE artists.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_account(main_worker_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM workers WHERE workers.MAIN_WORKER_ID = main_worker_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+/*
+*создание функций для удаления процессов
+*/
+CREATE OR REPLACE FUNCTION delete_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM processes WHERE processes.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_storyboard_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM storyboard_process WHERE storyboard_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_advertising_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM advertising_process WHERE advertising_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_adding_sound_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM adding_sound_process WHERE adding_sound_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_digitization_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM digitization_process WHERE digitization_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_smoothing_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM smoothing_process WHERE smoothing_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_revisions_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM revisions_process WHERE revisions_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_coloring_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM coloring_process WHERE coloring_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_animation_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM animation_process WHERE animation_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_adding_effect_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM adding_effect_process WHERE adding_effect_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_location_drawing_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM location_drawing_process WHERE location_drawing_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_battle_drawing_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM battle_drawing_process WHERE battle_drawing_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_character_drawing_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM character_drawing_process WHERE character_drawing_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_character_select_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM character_select_process WHERE character_select_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_voice_acting_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM voice_acting_process WHERE voice_acting_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_ability_description_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM ability_description_process WHERE ability_description_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_character_description_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM character_description_process WHERE character_description_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_location_description_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM location_description_process WHERE location_description_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_battle_description_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM battle_description_process WHERE battle_description_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_plot_process(main_process_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM plot_process WHERE plot_process.MAIN_PROCESS_ID=main_process_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+/*
+*функции для удаления основных сущностей
+*/
+CREATE OR REPLACE FUNCTION delete_plot(plot_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM plot WHERE plot.PLOT_ID=plot_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_events(event_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM events WHERE events.EVENT_ID=event_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_locations(location_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM locations WHERE locations.LOCATION_ID=location_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_battle(battle_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM battle WHERE battle.BATTLE_ID=battle_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_ability(ability_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM abilities WHERE abilities.ABILITY_ID=ability_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION delete_character(character_id INTEGER) RETURNS BOOLEAN AS
+$$
+BEGIN
+    DELETE FROM character WHERE character.CHARACTER_ID=character_id;
+    RETURN TRUE;
+END
+$$
+LANGUAGE plpgsql VOLATILE;
