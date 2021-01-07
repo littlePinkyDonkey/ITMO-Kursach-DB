@@ -1,6 +1,5 @@
 CREATE TYPE PRODUCER_ROLES AS ENUM ('producer', 'executive producer', 'co-producer', 'associate producer', 
  'assistant producer', 'line producer', 'administrative producer', 'creative producer', 'information producer');
-CREATE TYPE RECORDING_ACTOR_POSITIONS AS ENUM ('dubbing', 'voice acting roles', 'music recording');
 CREATE TYPE EDITOR_POSITIONS AS ENUM ('literature editor', 'technical editor' , 'art editor', 'main editor');
 CREATE TYPE ARTIST_TYPES AS ENUM ('character artist', 'battle artist', 'location artist', 'background artist', 'effect artist', 
  'animation artist', 'coloring artist');
@@ -18,6 +17,14 @@ CREATE TYPE USING_TECHNOLOGIES AS ENUM ('drawings', 'dolls', '3D');
 CREATE TYPE ARTIFACT_TYPES AS ENUM ('image', 'video', 'text', 'music', 'sounds');
 CREATE TYPE EFFECT_LEVELS AS ENUM('AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC', 'CC', 'C');
 CREATE TYPE RECORDING_ACTORS_POSITIONS AS ENUM('main', 'second_role');
+
+CREATE TABLE users (
+    USER_ID SERIAL PRIMARY KEY,
+    MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    LOGIN VARCHAR(32) NOT NULL,
+    USER_PASSWORD VARCHAR(32) NOT NULL,
+    SALT VARCHAR(32) NOT NULL
+);
 
 /*
 *сущность рабочие и все её характеристические сущности
@@ -368,6 +375,9 @@ CREATE TABLE plot(
     CONSTRAINT PLOT_PK PRIMARY KEY(PLOT_ID),
     CONSTRAINT PLOT_PAGES_NUMBER_CHECK CHECK(PAGES_NUMBER > 0)
 );
+CREATE INDEX plot_id_idx ON plot USING hash (PLOT_ID);
+CREATE INDEX plot_process_idx ON plot USING hash (PLOT_PROCESS);
+CREATE INDEX plot_name_idx ON plot USING hash (PLOT_NAME);
 
 CREATE TABLE events(
     EVENT_ID SERIAL,
@@ -377,6 +387,8 @@ CREATE TABLE events(
     CONSTRAINT EVENTS_PK PRIMARY KEY(EVENT_ID),
     CONSTRAINT EVENTS_IMPORTANCE_LEVEL_CHECK CHECK(IMPORTANCE_LEVEL BETWEEN 0 AND 10)
 );
+CREATE INDEX event_id_idx ON events USING hash (EVENT_ID);
+CREATE INDEX event_name_idx ON events USING hash (EVENT_NAME);
 
 CREATE TABLE locations(
     LOCATION_ID SERIAL,
@@ -389,6 +401,10 @@ CREATE TABLE locations(
     CONSTRAINT LOCATIONS_PK PRIMARY KEY(LOCATION_ID),
     CONSTRAINT LOCATIONS_AREA_CHECK CHECK(AREA > 0)
 );
+CREATE INDEX location_id_idx ON locations USING hash (LOCATION_ID);
+CREATE INDEX location_description_id_idx ON locations USING hash (DESCRIPTION_ID);
+CREATE INDEX location_drawing_id_idx ON locations USING hash (DRAWING_ID);
+CREATE INDEX location_name_idx ON locations USING hash (LOCATION_NAME);
 
 CREATE TABLE battle(
     BATTLE_ID SERIAL,
@@ -398,6 +414,10 @@ CREATE TABLE battle(
     DURATION NUMERIC(5,3) NOT NULL,
     CONSTRAINT BATTLE_PK PRIMARY KEY(BATTLE_ID)
 );
+CREATE INDEX battle_id ON battle USING hash (BATTLE_ID);
+CREATE INDEX battle_description_id_idx ON battle USING hash (DESCRIPTION_ID);
+CREATE INDEX battle_drawing_id_idx ON battle USING hash (DRAWING_ID);
+CREATE INDEX battle_name_idx ON battle USING hash (BATTLE_NAME);
 
 CREATE TABLE abilities(
     ABILITY_ID SERIAL,
@@ -409,6 +429,9 @@ CREATE TABLE abilities(
     CONSTRAINT ABILITIES_PK PRIMARY KEY(ABILITY_ID),
     CONSTRAINT ABILITIES_COMPLEXITY_LEVEL_CHECK CHECK(COMPLEXITY_LEVEL BETWEEN 0 AND 10)
 );
+CREATE INDEX ability_id_idx ON abilities USING hash (ABILITY_ID);
+CREATE INDEX ability_description_id_idx ON abilities USING hash (DESCRIPTION_ID);
+CREATE INDEX ability_name_idx ON abilities USING hash (ABILITY_NAME);
 
 CREATE TABLE character(
     CHARACTER_ID SERIAL,
@@ -425,6 +448,12 @@ CREATE TABLE character(
     CONSTRAINT CHARACTER_PK PRIMARY KEY(CHARACTER_ID),
     CONSTRAINT CHARACTER_AGE_CHECK CHECK(AGE > 0)
 );
+CREATE INDEX character_id_idx ON character USING hash (CHARACTER_ID);
+CREATE INDEX character_voice_acting_id_idx ON character USING hash (VOICE_ACTING_ID);
+CREATE INDEX character_selection_id_idx ON character USING hash (SELECTION_ID);
+CREATE INDEX character_drawing_id_idx ON character USING hash (DRAWING_ID);
+CREATE INDEX character_description_id_idx ON character USING hash (DESCRIPTION_ID);
+CREATE INDEX character_name_idx ON character USING hash (CHARACTER_NAME);
 
 /*
 *создание ассоциаций между процессами
