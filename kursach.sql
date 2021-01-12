@@ -1734,6 +1734,97 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 /*
+*функции для заполнения ассоциаций между стержневыми сущностями
+*/
+CREATE OR REPLACE FUNCTION associate_event_and_location(
+    location_id INTEGER,
+    event_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO event_location(LOCATION_ID, EVENT_ID) VALUES(location_id, event_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_event_and_plot(
+    event_id INTEGER,
+    plot_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO events_plots(EVENT_ID, PLOT_ID) VALUES(event_id, plot_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_event_and_character(
+    event_id INTEGER,
+    character_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO events_characters(EVENT_ID, CHARACTER_ID) VALUES(event_id, character_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_battle_and_location(
+    location_id INTEGER,
+    battle_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO battle_location(LOCATION_ID, BATTLE_ID) VALUES(location_id, battle_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_battle_and_ability(
+    battle_id INTEGER,
+    ability_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO battle_abilities(BATTLE_ID, ABILITY_ID) VALUES(battle_id, ability_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_battle_and_character(
+    event_id INTEGER,
+    plot_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO events_plots(EVENT_ID, PLOT_ID) VALUES(event_id, plot_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_character_and_ability(
+    ability_id INTEGER,
+    character_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO characters_abilities(ABILITY_ID, CHARACTER_ID) VALUES(ability_id, character_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_character_and_plot(
+    character_id INTEGER,
+    plot_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO events_plots(PLOT_ID, CHARACTER_ID) VALUES(plot_id, character_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+/*
 *функции для удаления работников
 */
 CREATE OR REPLACE FUNCTION delete_storyboarder(main_worker_id INTEGER) RETURNS BOOLEAN AS
