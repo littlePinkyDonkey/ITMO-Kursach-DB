@@ -788,6 +788,9 @@ $$
 BEGIN
     INSERT INTO storyboard_artists(MAIN_WORKER_ID) VALUES(main_worker_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -815,6 +818,9 @@ $$
 BEGIN
     INSERT INTO producers(MAIN_WORKER_ID, ROLE) VALUES(main_worker_id, role::PRODUCER_ROLES);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -840,6 +846,9 @@ $$
 BEGIN
     INSERT INTO audio_specialist(MAIN_WORKER_ID) VALUES(main_worker_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -865,6 +874,9 @@ $$
 BEGIN
     INSERT INTO digitizers(MAIN_WORKER_ID) VALUES(main_worker_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -890,6 +902,9 @@ $$
 BEGIN
     INSERT INTO smoothing_specialist(MAIN_WORKER_ID) VALUES(main_worker_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -915,6 +930,9 @@ $$
 BEGIN
     INSERT INTO art_director(MAIN_WORKER_ID) VALUES(main_worker_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -944,6 +962,9 @@ $$
 BEGIN
     INSERT INTO screenwriters(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(main_worker_id, films_number, genres);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -973,6 +994,9 @@ $$
 BEGIN
     INSERT INTO regisseurs(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(main_worker_id, films_number, genres);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -998,6 +1022,9 @@ $$
 BEGIN
     INSERT INTO roles_designers(MAIN_WORKER_ID) VALUES(main_worker_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1025,6 +1052,9 @@ $$
 BEGIN
     INSERT INTO recording_actors(MAIN_WORKER_ID, POSITION) VALUES(main_worker_id, position::RECORDING_ACTORS_POSITIONS);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1054,6 +1084,9 @@ $$
 BEGIN
     INSERT INTO editors(MAIN_WORKER_ID, GENRES, POSITION) VALUES(main_worker_id, genres, position::EDITOR_POSITIONS);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1083,6 +1116,9 @@ $$
 BEGIN
     INSERT INTO artists(MAIN_WORKER_ID, ARTIST_TYPE, USING_TECHNOLOGY) VALUES(main_worker_id, artist_type::ARTIST_TYPES, using_technology::USING_TECHNOLOGIES);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1128,6 +1164,9 @@ $$
 BEGIN
     INSERT INTO storyboard_process(MAIN_PROCESS_ID, FRAME_NUMBER) VALUES(main_process_id, frame_number);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1156,6 +1195,9 @@ $$
 BEGIN
     INSERT INTO advertising_process(MAIN_PROCESS_ID, INSERTION_LOCATION) VALUES(main_process_id, insertion_location::INSERTION_LOCATIONS);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1184,6 +1226,9 @@ $$
 BEGIN
     INSERT INTO adding_sound_process(MAIN_PROCESS_ID, SOUND_TYPE) VALUES(main_process_id, sound_type::SOUND_TYPES);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1215,6 +1260,9 @@ $$
 BEGIN
     INSERT INTO digitization_process(MAIN_PROCESS_ID, SKETCHES_NUMBER, DIGITIZATION_TYPE) VALUES(main_process_id, sketches_number, digitization_type::DIGITIZATION_TYPES);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1241,6 +1289,9 @@ $$
 BEGIN
     INSERT INTO smoothing_process(MAIN_PROCESS_ID) VALUES(main_process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1269,6 +1320,9 @@ $$
 BEGIN
     INSERT INTO revisions_process(MAIN_PROCESS_ID, REVISION_TYPE) VALUES(main_process_id, revision_type::REVISION_TYPES);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1297,6 +1351,9 @@ $$
 BEGIN
     INSERT INTO coloring_process(MAIN_PROCESS_ID, COLORING_TYPE) VALUES(main_process_id, coloring_type::COLORING_TYPES);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1328,6 +1385,9 @@ $$
 BEGIN
     INSERT INTO animation_process(MAIN_PROCESS_ID, FRAME_RATE, ANIMATION_TECHNOLOGY) VALUES(main_process_id, frame_rate, animation_technology);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1356,6 +1416,9 @@ $$
 BEGIN
     INSERT INTO adding_effect_process(MAIN_PROCESS_ID, EFFECT_LEVEL) VALUES(main_process_id, effect_level::EFFECT_LEVELS);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1382,6 +1445,9 @@ $$
 BEGIN
     INSERT INTO location_drawing_process(MAIN_PROCESS_ID) VALUES(main_process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1408,6 +1474,9 @@ $$
 BEGIN
     INSERT INTO battle_drawing_process(MAIN_PROCESS_ID) VALUES(main_process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1434,6 +1503,9 @@ $$
 BEGIN
     INSERT INTO character_drawing_process(MAIN_PROCESS_ID) VALUES(main_process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1460,6 +1532,9 @@ $$
 BEGIN
     INSERT INTO character_select_process(MAIN_PROCESS_ID) VALUES(main_process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1488,6 +1563,9 @@ $$
 BEGIN
     INSERT INTO voice_acting_process(MAIN_PROCESS_ID, VOICE_ACTING_TYPE) VALUES(main_process_id, voice_acting_type::VOICE_ACTING_TYPES);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1514,6 +1592,9 @@ $$
 BEGIN
     INSERT INTO ability_description_process(MAIN_PROCESS_ID) VALUES(main_process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1540,6 +1621,9 @@ $$
 BEGIN
     INSERT INTO character_description_process(MAIN_PROCESS_ID) VALUES(main_process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1566,6 +1650,9 @@ $$
 BEGIN
     INSERT INTO location_description_process(MAIN_PROCESS_ID) VALUES(main_process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1592,6 +1679,9 @@ $$
 BEGIN
     INSERT INTO battle_description_process(MAIN_PROCESS_ID) VALUES(main_process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1618,6 +1708,9 @@ $$
 BEGIN
     INSERT INTO plot_process(MAIN_PROCESS_ID) VALUES(main_process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN unique_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
