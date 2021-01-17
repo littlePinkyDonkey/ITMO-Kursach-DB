@@ -142,15 +142,6 @@ CREATE TABLE artists(
 CREATE INDEX artists_id_idx ON artists USING hash (WORKER_ID);
 CREATE INDEX artists_main_worker_id_idx ON artists USING hash (MAIN_WORKER_ID);
 
-
-CREATE TABLE users (
-    USER_ID SERIAL PRIMARY KEY,
-    MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    LOGIN VARCHAR(32) NOT NULL,
-    USER_PASSWORD VARCHAR(32) NOT NULL,
-    SALT VARCHAR(32) NOT NULL
-);
-
 /*
 *сущность процессы и все её характеристические сущности
 */
@@ -1035,12 +1026,7 @@ CREATE OR REPLACE FUNCTION add_recording_actor(
     gender VARCHAR,
     age INTEGER,
     place_of_birth TEXT,
-<<<<<<< HEAD
     pos VARCHAR
-=======
-<<<<<<< HEAD
-    position VARCHAR
->>>>>>> egurin/fixes
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1061,14 +1047,6 @@ BEGIN
 EXCEPTION
   WHEN unique_violation THEN
     RETURN FALSE;
-=======
-    pos RECORDING_ACTORS_POSITIONS
-) RETURNS VOID AS
-$$
-BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
-    INSERT INTO recording_actors(MAIN_WORKER_ID, POSITION) VALUES(currval('workers_main_worker_id_seq'), pos);
->>>>>>> d77a69bf5a62dad03834b1d8b52582f7241bbb37
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1079,12 +1057,7 @@ CREATE OR REPLACE FUNCTION add_editor(
     age INTEGER,
     place_of_birth TEXT,
     genres VARCHAR[],
-<<<<<<< HEAD
     pos VARCHAR
-=======
-<<<<<<< HEAD
-    position VARCHAR
->>>>>>> egurin/fixes
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1106,14 +1079,6 @@ BEGIN
 EXCEPTION
   WHEN unique_violation THEN
     RETURN FALSE;
-=======
-    pos EDITOR_POSITIONS
-) RETURNS VOID AS
-$$
-BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
-    INSERT INTO editors(MAIN_WORKER_ID, GENRES, POSITION) VALUES(currval('workers_main_worker_id_seq'), genres, pos);
->>>>>>> d77a69bf5a62dad03834b1d8b52582f7241bbb37
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -1947,15 +1912,6 @@ $$ LANGUAGE plpgsql VOLATILE;
 /*
 *функции для удаления работников
 */
-CREATE OR REPLACE FUNCTION delete_worker(main_worker_id INTEGER) RETURNS BOOLEAN AS
-$$
-BEGIN
-    DELETE FROM workers WHERE workers.MAIN_WORKER_ID = main_worker_id;
-    RETURN TRUE;
-END
-$$
-LANGUAGE plpgsql VOLATILE;
-
 CREATE OR REPLACE FUNCTION delete_storyboarder(main_worker_id INTEGER) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -2067,7 +2023,7 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION delete_account(main_worker_id INTEGER) RETURNS BOOLEAN AS
 $$
 BEGIN
-    DELETE FROM users WHERE users.MAIN_WORKER_ID = main_worker_id;
+    DELETE FROM workers WHERE workers.MAIN_WORKER_ID = main_worker_id;
     RETURN TRUE;
 END
 $$
