@@ -143,6 +143,17 @@ CREATE INDEX artists_id_idx ON artists USING hash (WORKER_ID);
 CREATE INDEX artists_main_worker_id_idx ON artists USING hash (MAIN_WORKER_ID);
 
 /*
+*сущность users
+*/
+CREATE TABLE users (
+    USER_ID SERIAL PRIMARY KEY,
+    MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    LOGIN VARCHAR(32) NOT NULL,
+    USER_PASSWORD VARCHAR(32) NOT NULL,
+    SALT VARCHAR(32) NOT NULL
+);
+
+/*
 *сущность процессы и все её характеристические сущности
 */
 CREATE TABLE processes(
