@@ -1,1 +1,4 @@
 *.docx
+/.idea/
+/insert-data-scripts/result_sql_scripts/
+/insert-data-scripts/__pycache__/
