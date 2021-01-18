@@ -159,10 +159,10 @@ CREATE TABLE users (
 CREATE TABLE processes(
     MAIN_PROCESS_ID SERIAL,
     DURATION INTEGER NOT NULL,
-    DEADLINE_DATE DATE NOT NULL,
+    DEADLINE_DATE TIMESTAMP NOT NULL,
     DESCRIPTION TEXT NOT NULL,
     STATUS PROCESS_STATUS NOT NULL,
-    START_DATE DATE NOT NULL,
+    START_DATE TIMESTAMP NOT NULL,
     CONSTRAINT PROCESSES_PK PRIMARY KEY(MAIN_PROCESS_ID),
     CONSTRAINT PROCESSES_DURATION_CHECK CHECK(DURATION > 0),
     CONSTRAINT PROCESS_DATES_CHECk CHECK(DEADLINE_DATE > START_DATE)
@@ -445,7 +445,7 @@ CREATE TABLE character(
     PROTAGONIST BOOLEAN NOT NULL,
     POSITIVE BOOLEAN NOT NULL,
     AGE INTEGER NOT NULL,
-    BIRTH_DATE DATE,
+    BIRTH_DATE TIMESTAMP,
     CONSTRAINT CHARACTER_PK PRIMARY KEY(CHARACTER_ID),
     CONSTRAINT CHARACTER_AGE_CHECK CHECK(AGE > 0)
 );
@@ -978,12 +978,12 @@ CREATE OR REPLACE FUNCTION add_regisseur(
     age INTEGER,
     place_of_birth TEXT,
     films_number INTEGER,
-    genres VARCHAR[]
+    genres bytea
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
-    INSERT INTO regisseurs(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(currval('workers_main_worker_id_seq'), films_number, genres);
+    INSERT INTO regisseurs(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(currval('workers_main_worker_id_seq'), films_number, genres::VARCHAR[]);
     RETURN TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
@@ -1130,10 +1130,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 */
 CREATE OR REPLACE FUNCTION create_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE
+    start_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1144,10 +1144,10 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION create_storyboard_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE,
+    start_date TIMESTAMP,
     frame_number INTEGER
 ) RETURNS BOOLEAN AS
 $$
@@ -1175,10 +1175,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_advertising_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE,
+    start_date TIMESTAMP,
     insertion_location VARCHAR
 ) RETURNS BOOLEAN AS
 $$
@@ -1206,10 +1206,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_adding_sound_effect_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE,
+    start_date TIMESTAMP,
     sound_type VARCHAR
 ) RETURNS BOOLEAN AS
 $$
@@ -1237,10 +1237,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_digitization_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE,
+    start_date TIMESTAMP,
     sketches_number INTEGER,
     digitization_type VARCHAR
 ) RETURNS BOOLEAN AS
@@ -1271,10 +1271,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_smoothing_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE
+    start_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1300,10 +1300,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_revision_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE,
+    start_date TIMESTAMP,
     revision_type VARCHAR
 ) RETURNS BOOLEAN AS
 $$
@@ -1331,10 +1331,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_coloring_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE,
+    start_date TIMESTAMP,
     coloring_type VARCHAR
 ) RETURNS BOOLEAN AS
 $$
@@ -1362,10 +1362,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_animation_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE,
+    start_date TIMESTAMP,
     frame_rate INTEGER,
     animation_technology VARCHAR
 ) RETURNS BOOLEAN AS
@@ -1396,10 +1396,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_adding_effect_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE,
+    start_date TIMESTAMP,
     effect_level VARCHAR
 ) RETURNS BOOLEAN AS
 $$
@@ -1427,10 +1427,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_location_drawing_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE
+    start_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1456,10 +1456,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_battle_drawing_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE
+    start_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1485,10 +1485,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_character_drawing_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE
+    start_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1514,10 +1514,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_character_select_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE
+    start_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1543,10 +1543,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_voice_acting_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE,
+    start_date TIMESTAMP,
     voice_acting_type VARCHAR
 ) RETURNS BOOLEAN AS
 $$
@@ -1574,10 +1574,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_ability_description_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE
+    start_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1603,10 +1603,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_character_description_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE
+    start_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1632,10 +1632,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_location_description_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE
+    start_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1661,10 +1661,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_battle_description_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE
+    start_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1690,10 +1690,10 @@ $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_plot_process(
     duration INTEGER,
-    deadline_date DATE,
+    deadline_date TIMESTAMP,
     description TEXT,
     status VARCHAR,
-    start_date DATE
+    start_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1724,7 +1724,7 @@ CREATE OR REPLACE FUNCTION create_artifact(
     upload_user INTEGER,
     artifact_type VARCHAR,
     size INTEGER,
-    upload_date DATE
+    upload_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
@@ -1819,7 +1819,7 @@ CREATE OR REPLACE FUNCTION create_character(
     protagonist BOOLEAN,
     positive BOOLEAN,
     age INTEGER,
-    birth_date DATE
+    birth_date TIMESTAMP
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
