@@ -87,7 +87,6 @@ CREATE TABLE screenwriters(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     FILMS_NUMBER INTEGER NOT NULL,
-    GENRES VARCHAR(32)[] NOT NULL,
     CONSTRAINT SCREENWRITERS_PK PRIMARY KEY(WORKER_ID),
     CONSTRAINT SCREENWRITER_FILMS_NUMBER_CHECK CHECK(FILMS_NUMBER >= 0)
 );
@@ -98,7 +97,6 @@ CREATE TABLE regisseurs(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     FILMS_NUMBER INTEGER NOT NULL,
-    GENRES VARCHAR(32)[] NOT NULL,
     CONSTRAINT REGISSEURS_PK PRIMARY KEY(WORKER_ID),
     CONSTRAINT REGISSEURS_FILMS_NUMBER_CHECK CHECK(FILMS_NUMBER >= 0)
 );
@@ -125,7 +123,6 @@ CREATE INDEX recording_actors_main_worker_id_idx ON recording_actors USING hash 
 CREATE TABLE editors(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    GENRES VARCHAR(32)[] NOT NULL,
     POSITION EDITOR_POSITIONS NOT NULL,
     CONSTRAINT EDITORS_PK PRIMARY KEY(WORKER_ID)
 );
@@ -354,6 +351,7 @@ CREATE TABLE artifacts(
     ARTIFACT_TYPE ARTIFACT_TYPES NOT NULL,
     SIZE INTEGER NOT NULL,
     UPLOAD_DATE TIMESTAMP NOT NULL,
+    FILE_LINK TEXT NOT NULL,
     CONSTRAINT ARTIFACTS_PK PRIMARY KEY(ARTIFACT_ID),
     CONSTRAINT ARTIFACTS_SIZE_CHECK CHECK(SIZE >= 0)
 );
@@ -671,7 +669,7 @@ CREATE INDEX screenwriter_plot_process_id_idx ON screenwriter_plot_process USING
 CREATE INDEX screenwriter_plot_process_worker_id_idx ON screenwriter_plot_process USING hash (WORKER_ID);
 
 /*
-*создание ассоциации между процессами и артифактами
+*создание ассоциации между процессами и артефактами
 */
 CREATE TABLE process_artifact(
     MAIN_PROCESS_ID INTEGER REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -945,25 +943,23 @@ CREATE OR REPLACE FUNCTION add_screenwriter(
     gender VARCHAR,
     age INTEGER,
     place_of_birth TEXT,
-    films_number INTEGER,
-    genres VARCHAR[]
+    films_number INTEGER
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
-    INSERT INTO screenwriters(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(currval('workers_main_worker_id_seq'), films_number, genres);
+    INSERT INTO screenwriters(MAIN_WORKER_ID, FILMS_NUMBER) VALUES(currval('workers_main_worker_id_seq'), films_number);
     RETURN TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION add_existing_screenwriter(
     main_worker_id INTEGER,
-    films_number INTEGER,
-    genres VARCHAR[]
+    films_number INTEGER
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
-    INSERT INTO screenwriters(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(main_worker_id, films_number, genres);
+    INSERT INTO screenwriters(MAIN_WORKER_ID, FILMS_NUMBER) VALUES(main_worker_id, films_number);
     RETURN TRUE;
 EXCEPTION
   WHEN unique_violation THEN
@@ -977,25 +973,23 @@ CREATE OR REPLACE FUNCTION add_regisseur(
     gender VARCHAR,
     age INTEGER,
     place_of_birth TEXT,
-    films_number INTEGER,
-    genres bytea
+    films_number INTEGER
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
-    INSERT INTO regisseurs(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(currval('workers_main_worker_id_seq'), films_number, genres::VARCHAR[]);
+    INSERT INTO regisseurs(MAIN_WORKER_ID, FILMS_NUMBER) VALUES(currval('workers_main_worker_id_seq'), films_number);
     RETURN TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION add_existing_regisseur(
     main_worker_id INTEGER,
-    films_number INTEGER,
-    genres VARCHAR[]
+    films_number INTEGER
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
-    INSERT INTO regisseurs(MAIN_WORKER_ID, FILMS_NUMBER, GENRES) VALUES(main_worker_id, films_number, genres);
+    INSERT INTO regisseurs(MAIN_WORKER_ID, FILMS_NUMBER) VALUES(main_worker_id, films_number);
     RETURN TRUE;
 EXCEPTION
   WHEN unique_violation THEN
@@ -1067,25 +1061,23 @@ CREATE OR REPLACE FUNCTION add_editor(
     gender VARCHAR,
     age INTEGER,
     place_of_birth TEXT,
-    genres VARCHAR[],
     pos VARCHAR
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
     INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth);
-    INSERT INTO editors(MAIN_WORKER_ID, GENRES, POSITION) VALUES(currval('workers_main_worker_id_seq'), genres, pos::EDITOR_POSITIONS);
+    INSERT INTO editors(MAIN_WORKER_ID, POSITION) VALUES(currval('workers_main_worker_id_seq'), pos::EDITOR_POSITIONS);
     RETURN TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION add_existing_editor(
     main_worker_id INTEGER,
-    genres VARCHAR[],
     pos VARCHAR
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
-    INSERT INTO editors(MAIN_WORKER_ID, GENRES, POSITION) VALUES(main_worker_id, genres, pos::EDITOR_POSITIONS);
+    INSERT INTO editors(MAIN_WORKER_ID, POSITION) VALUES(main_worker_id, pos::EDITOR_POSITIONS);
     RETURN TRUE;
 EXCEPTION
   WHEN unique_violation THEN
@@ -1725,10 +1717,11 @@ CREATE OR REPLACE FUNCTION create_artifact(
     artifact_type VARCHAR,
     size INTEGER,
     upload_date TIMESTAMP
+    file_link TEXT
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
-    INSERT INTO artifacts(MAIN_WORKER_ID, ARTIFACT_TYPE, SIZE, UPLOAD_DATE) VALUES(upload_user, artifact_type::ARTIFACT_TYPES, size, upload_date);
+    INSERT INTO artifacts(MAIN_WORKER_ID, ARTIFACT_TYPE, SIZE, UPLOAD_DATE, FILE_LINK) VALUES(upload_user, artifact_type::ARTIFACT_TYPES, size, upload_date, file_link);
     RETURN TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
