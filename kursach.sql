@@ -1716,7 +1716,7 @@ CREATE OR REPLACE FUNCTION create_artifact(
     upload_user INTEGER,
     artifact_type VARCHAR,
     size INTEGER,
-    upload_date TIMESTAMP
+    upload_date TIMESTAMP,
     file_link TEXT
 ) RETURNS BOOLEAN AS
 $$
@@ -1881,12 +1881,12 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION associate_battle_and_character(
-    event_id INTEGER,
-    plot_id INTEGER
+    battle_id INTEGER,
+    character_id INTEGER
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
-    INSERT INTO events_plots(EVENT_ID, PLOT_ID) VALUES(event_id, plot_id);
+    INSERT INTO battle_characters(BATTLE_ID, CHARACTER_ID) VALUES(battle_id, character_id);
     RETURN TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
@@ -1902,13 +1902,294 @@ BEGIN
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
-CREATE OR REPLACE FUNCTION associate_character_and_plot(
-    character_id INTEGER,
-    plot_id INTEGER
+/*
+*функции для заполнения ассоциаций между работниками и процессами
+*/
+CREATE OR REPLACE FUNCTION associate_storyboarder_and_process(
+    worker_id INTEGER,
+    process_id INTEGER
 ) RETURNS BOOLEAN AS
 $$
 BEGIN
-    INSERT INTO events_plots(PLOT_ID, CHARACTER_ID) VALUES(plot_id, character_id);
+    INSERT INTO artist_storyboard_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_producer_and_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO producer_advertising_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_audio_specialist_and_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO audio_adding_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_digitizer_and_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO digitizers_digitization_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_smoother_and_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO smoother_smoothing_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_art_director_and_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO art_director_revision_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_artist_and_coloring_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO artist_coloring_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_artist_and_animation_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO artist_animation_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_artist_and_effects_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO artist_effects_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_artist_and_location_drawing_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO artist_location_drawing_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_artist_and_battle_drawing_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO artist_battle_drawing_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_artist_and_character_drawing_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO artist_character_drawing_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_editor_and_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO editors_character_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_recorder_and_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO recorder_voice_acting_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_designer_and_ability_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO designer_ability_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_designer_and_character_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO designer_character_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_regisseur_and_location_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO regisseur_location_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_regisseur_and_plot_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO regisseurs_plot_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_screenwriter_and_battle_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO screenwriter_battle_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_screenwriter_and_plot_process(
+    worker_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO screenwriter_plot_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+/*
+*функции для заполнения ассоциаций между ревизиями и процессами
+*/
+CREATE OR REPLACE FUNCTION associate_revision_and_storyboarding(
+    revision_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO revision_storyboarding(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_revision_and_adding_sound(
+    revision_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO revision_adding_sound(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_revision_and_smoothing(
+    revision_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO revision_smoothing(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_revision_and_adding_effects(
+    revision_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO revision_adding_effects(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_revision_and_animation(
+    revision_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO revision_animation(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION associate_revision_and_coloring(
+    revision_id INTEGER,
+    process_id INTEGER
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    INSERT INTO revision_coloring(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
     RETURN TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
