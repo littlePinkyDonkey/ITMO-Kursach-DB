@@ -26,10 +26,8 @@ CREATE TABLE workers(
     NAME VARCHAR(32) NOT NULL,
     SECOND_NAME VARCHAR(32) NOT NULL,
     GENDER VARCHAR(32) NOT NULL,
-    AGE INTEGER NOT NULL,
     PLACE_OF_BIRTH TEXT NOT NULL,
-    CONSTRAINT WORKERS_PK PRIMARY KEY(MAIN_WORKER_ID),
-    CONSTRAINT WORKERS_AGE_CHECK CHECK(AGE > 0 AND AGE < 120)
+    CONSTRAINT WORKERS_PK PRIMARY KEY(MAIN_WORKER_ID)
 );
 CREATE INDEX workers_full_name_idx ON workers (SECOND_NAME, NAME);
 CREATE INDEX workers_id_idx ON workers USING hash (MAIN_WORKER_ID);
@@ -45,7 +43,7 @@ CREATE INDEX storyboard_artists_main_worker_id_idx ON storyboard_artists USING h
 CREATE TABLE producers(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    ROLE PRODUCER_ROLES NOT NULL,
+    ROLE PRODUCER_ROLES,
     CONSTRAINT PRODUCERS_PK PRIMARY KEY(WORKER_ID)
 );
 CREATE INDEX producers_id_idx ON producers USING hash (WORKER_ID);
@@ -86,7 +84,7 @@ CREATE INDEX art_director_main_worker_id_idx ON art_director USING hash (MAIN_WO
 CREATE TABLE screenwriters(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    FILMS_NUMBER INTEGER NOT NULL,
+    FILMS_NUMBER INTEGER,
     CONSTRAINT SCREENWRITERS_PK PRIMARY KEY(WORKER_ID),
     CONSTRAINT SCREENWRITER_FILMS_NUMBER_CHECK CHECK(FILMS_NUMBER >= 0)
 );
@@ -96,7 +94,7 @@ CREATE INDEX screenwriters_main_worker_id_idx ON screenwriters USING hash (MAIN_
 CREATE TABLE regisseurs(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    FILMS_NUMBER INTEGER NOT NULL,
+    FILMS_NUMBER INTEGER,
     CONSTRAINT REGISSEURS_PK PRIMARY KEY(WORKER_ID),
     CONSTRAINT REGISSEURS_FILMS_NUMBER_CHECK CHECK(FILMS_NUMBER >= 0)
 );
@@ -114,7 +112,7 @@ CREATE INDEX roles_designers_main_worker_id_idx ON roles_designers USING hash (M
 CREATE TABLE recording_actors(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    POSITION RECORDING_ACTORS_POSITIONS NOT NULL,
+    POSITION RECORDING_ACTORS_POSITIONS,
     CONSTRAINT RECORDING_ACTORS_PK PRIMARY KEY(WORKER_ID)
 );
 CREATE INDEX recording_actors_id_idx ON recording_actors USING hash (WORKER_ID);
@@ -123,7 +121,7 @@ CREATE INDEX recording_actors_main_worker_id_idx ON recording_actors USING hash 
 CREATE TABLE editors(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    POSITION EDITOR_POSITIONS NOT NULL,
+    POSITION EDITOR_POSITIONS,
     CONSTRAINT EDITORS_PK PRIMARY KEY(WORKER_ID)
 );
 CREATE INDEX editors_id_idx ON editors USING hash (WORKER_ID);
@@ -132,8 +130,8 @@ CREATE INDEX editors_main_worker_id_idx ON editors USING hash (MAIN_WORKER_ID);
 CREATE TABLE artists(
     WORKER_ID SERIAL,
     MAIN_WORKER_ID INTEGER REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    ARTIST_TYPE ARTIST_TYPES NOT NULL,
-    USING_TECHNOLOGY USING_TECHNOLOGIES NOT NULL,
+    ARTIST_TYPE ARTIST_TYPES,
+    USING_TECHNOLOGY USING_TECHNOLOGIES,
     CONSTRAINT ARTISTS_PK PRIMARY KEY(WORKER_ID)
 );
 CREATE INDEX artists_id_idx ON artists USING hash (WORKER_ID);
@@ -147,8 +145,8 @@ CREATE TABLE users(
     MAIN_WORKER_ID INTEGER UNIQUE REFERENCES workers(MAIN_WORKER_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     LOGIN VARCHAR(32) UNIQUE NOT NULL,
     USER_PASSWORD TEXT NOT NULL,
-    SALT VARCHAR(32) NOT NULL,
     EMAIL VARCHAR(32),
+    AVATAR_FILE_LINK TEXT,
     LAST_LOG_OUT DATE
 );
 CREATE INDEX IF NOT EXISTS users_pk_idx ON users USING hash(USER_ID);
@@ -183,7 +181,7 @@ CREATE INDEX process_status_idx ON processes (STATUS);
 CREATE TABLE storyboard_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    FRAME_NUMBER INTEGER NOT NULL,
+    FRAME_NUMBER INTEGER,
     CONSTRAINT STORYBOARD_PROCESS_PK PRIMARY KEY(PROCESS_ID),
     CONSTRAINT STORYBOARD_PROCESS_FRAME_NUMBER_CHECK CHECK(FRAME_NUMBER >= 0)
 );
@@ -194,7 +192,7 @@ CREATE INDEX frame_number_idx ON storyboard_process (FRAME_NUMBER);
 CREATE TABLE advertising_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    INSERTION_LOCATION INSERTION_LOCATIONS NOT NULL,
+    INSERTION_LOCATION INSERTION_LOCATIONS,
     CONSTRAINT ADVERTISNG_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
 CREATE INDEX advertising_process_id_idx ON advertising_process USING hash (PROCESS_ID);
@@ -204,7 +202,7 @@ CREATE INDEX insertion_location_idx ON advertising_process (INSERTION_LOCATION);
 CREATE TABLE adding_sound_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    SOUND_TYPE SOUND_TYPES NOT NULL,
+    SOUND_TYPE SOUND_TYPES,
     CONSTRAINT ADDING_SOUND_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
 CREATE INDEX adding_sound_process_id_idx ON adding_sound_process USING hash (PROCESS_ID);
@@ -214,8 +212,8 @@ CREATE INDEX sound_type ON adding_sound_process (SOUND_TYPE);
 CREATE TABLE digitization_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    SKETCHES_NUMBER INTEGER NOT NULL,
-    DIGITIZATION_TYPE DIGITIZATION_TYPES NOT NULL,
+    SKETCHES_NUMBER INTEGER,
+    DIGITIZATION_TYPE DIGITIZATION_TYPES,
     CONSTRAINT DIGITIZATION_PROCESS_PK PRIMARY KEY(PROCESS_ID),
     CONSTRAINT DIGITIZATION_PROCESS_SKETCHES_NUMBER_CHECK CHECK(SKETCHES_NUMBER >= 0)
 );
@@ -234,7 +232,7 @@ CREATE INDEX smoothing_process_main_process_id_idx ON smoothing_process USING ha
 CREATE TABLE revisions_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    REVISION_TYPE REVISION_TYPES NOT NULL,
+    REVISION_TYPE REVISION_TYPES,
     CONSTRAINT REVISIONS_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
 CREATE INDEX revisions_process_id_idx ON revisions_process USING hash (PROCESS_ID);
@@ -244,7 +242,7 @@ CREATE INDEX revision_type_idx ON revisions_process (REVISION_TYPE);
 CREATE TABLE coloring_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    COLORING_TYPE COLORING_TYPES NOT NULL,
+    COLORING_TYPE COLORING_TYPES,
     CONSTRAINT COLORING_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
 CREATE INDEX coloring_process_id_idx ON coloring_process USING hash (PROCESS_ID);
@@ -254,8 +252,8 @@ CREATE INDEX coloring_type_idx ON coloring_process (COLORING_TYPE);
 CREATE TABLE animation_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    FRAME_RATE INTEGER NOT NULL,
-    ANIMATION_TECHNOLOGY VARCHAR(32) NOT NULL,
+    FRAME_RATE INTEGER,
+    ANIMATION_TECHNOLOGY VARCHAR(32),
     CONSTRAINT ANIMATION_PROCESS_PK PRIMARY KEY(PROCESS_ID),
     CONSTRAINT ANIMATION_PROCESS_FRAME_RATE_CHECK CHECK(FRAME_RATE > 0)
 );
@@ -266,7 +264,7 @@ CREATE INDEX animation_technology_idx ON animation_process (ANIMATION_TECHNOLOGY
 CREATE TABLE adding_effect_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    EFFECT_LEVEL EFFECT_LEVELS NOT NULL,
+    EFFECT_LEVEL EFFECT_LEVELS,
     CONSTRAINT ADDING_EFFECT_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
 CREATE INDEX adding_effect_process_id_idx ON adding_effect_process USING hash (PROCESS_ID);
@@ -308,7 +306,7 @@ CREATE INDEX character_select_process_main_process_id_idx ON character_select_pr
 CREATE TABLE voice_acting_process(
     PROCESS_ID SERIAL,
     MAIN_PROCESS_ID INTEGER UNIQUE REFERENCES processes(MAIN_PROCESS_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    VOICE_ACTING_TYPE VOICE_ACTING_TYPES NOT NULL,
+    VOICE_ACTING_TYPE VOICE_ACTING_TYPES,
     CONSTRAINT VOICE_ACTING_PROCESS_PK PRIMARY KEY(PROCESS_ID)
 );
 CREATE INDEX voice_acting_process_id_idx ON voice_acting_process USING hash (PROCESS_ID);
@@ -373,6 +371,58 @@ CREATE INDEX artifacts_main_worker_id_idx ON artifacts USING hash (MAIN_WORKER_I
 CREATE INDEX artifact_type_idx ON artifacts (ARTIFACT_TYPE);
 CREATE INDEX upload_date_idx ON artifacts (UPLOAD_DATE DESC);
 CREATE INDEX artifact_type_upload_date_idx ON artifacts (ARTIFACT_TYPE, UPLOAD_DATE);
+
+/*
+*создание сущности история
+*/
+
+/*
+*создание сущности продукт
+*/
+CREATE TABLE products(
+    PRODUCT_ID SERIAL PRIMARY KEY,
+    POSTER_PATH TEXT,
+    DESCRIPTION TEXT,
+    PRODUCT_NAME VARCHAR(32),
+    AUTHOR_NAME VARCHAR(64)
+);
+
+CREATE TABLE users_products(
+    USER_ID INTEGER REFERENCES users(USER_ID) ON UPDATE CASCADE ON DELETE SET NULL,
+    PRODUCT_ID INTEGER REFERENCES products(PRODUCT_ID) ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+CREATE OR REPLACE FUNCTION create_product(
+    poster_path TEXT,
+    description TEXT,
+    product_name VARCHAR,
+    author_name VARCHAR
+) RETURNS INTEGER AS
+$$
+DECLARE
+    prod_id INTEGER;
+BEGIN
+    INSERT INTO products(POSTER_PATH, DESCRIPTION, PRODUCT_NAME, AUTHOR_NAME) VALUES(poster_path, description, product_name, author_name) RETURNING PRODUCT_ID INTO prod_id;
+    RETURN prod_id;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN -2;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION associate_product_and_user(
+    product_id INTEGER,
+    user_id INTEGER
+) RETURNS BOOLEAN AS 
+$$
+BEGIN
+    INSERT INTO users_products(USER_ID, PRODUCT_ID) VALUES(user_id, product_id);
+    RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
+END
+$$ LANGUAGE plpgsql;
 
 /*
 *создание основных стержневых сущностей
@@ -770,14 +820,13 @@ CREATE OR REPLACE FUNCTION add_worker(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT
 ) RETURNS INTEGER AS
 $$
 DECLARE
     mw_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     RETURN mw_id;
 END
 $$ LANGUAGE plpgsql VOLATILE;
@@ -786,7 +835,6 @@ CREATE OR REPLACE FUNCTION add_storyboard_artist(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT
 ) RETURNS INTEGER AS
 $$
@@ -794,7 +842,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO storyboard_artists(MAIN_WORKER_ID) VALUES(mw_id) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
 END
@@ -821,7 +869,6 @@ CREATE OR REPLACE FUNCTION add_producer(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT,
     role VARCHAR
 ) RETURNS INTEGER AS
@@ -830,7 +877,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO producers(MAIN_WORKER_ID, ROLE) VALUES(mw_id, role::PRODUCER_ROLES) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
 END
@@ -858,7 +905,6 @@ CREATE OR REPLACE FUNCTION add_audio_specialist(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT
 ) RETURNS INTEGER AS
 $$
@@ -866,7 +912,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO audio_specialist(MAIN_WORKER_ID) VALUES(mw_id) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
 END
@@ -893,7 +939,6 @@ CREATE OR REPLACE FUNCTION add_digitizer(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT
 ) RETURNS INTEGER AS
 $$
@@ -901,7 +946,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO digitizers(MAIN_WORKER_ID) VALUES(mw_id) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
 END
@@ -928,7 +973,6 @@ CREATE OR REPLACE FUNCTION add_smoothing_specialist(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT
 ) RETURNS INTEGER AS
 $$
@@ -936,7 +980,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO smoothing_specialist(MAIN_WORKER_ID) VALUES(mw_id) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
 END
@@ -963,7 +1007,6 @@ CREATE OR REPLACE FUNCTION add_art_director(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT
 ) RETURNS INTEGER AS
 $$
@@ -971,7 +1014,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO art_director(MAIN_WORKER_ID) VALUES(mw_id) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
 END
@@ -998,7 +1041,6 @@ CREATE OR REPLACE FUNCTION add_screenwriter(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT,
     films_number INTEGER
 ) RETURNS INTEGER AS
@@ -1007,7 +1049,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO screenwriters(MAIN_WORKER_ID, FILMS_NUMBER) VALUES(mw_id, films_number) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
 END
@@ -1035,7 +1077,6 @@ CREATE OR REPLACE FUNCTION add_regisseur(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT,
     films_number INTEGER
 ) RETURNS INTEGER AS
@@ -1044,7 +1085,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO regisseurs(MAIN_WORKER_ID, FILMS_NUMBER) VALUES(mw_id, films_number) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
 END
@@ -1072,7 +1113,6 @@ CREATE OR REPLACE FUNCTION add_roles_designer(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT
 ) RETURNS INTEGER AS
 $$
@@ -1080,7 +1120,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO roles_designers(MAIN_WORKER_ID) VALUES(mw_id) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
 END
@@ -1107,7 +1147,6 @@ CREATE OR REPLACE FUNCTION add_recording_actor(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT,
     pos VARCHAR
 ) RETURNS INTEGER AS
@@ -1116,7 +1155,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO recording_actors(MAIN_WORKER_ID, POSITION) VALUES(mw_id, pos::RECORDING_ACTORS_POSITIONS) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
 END
@@ -1144,7 +1183,6 @@ CREATE OR REPLACE FUNCTION add_editor(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT,
     pos VARCHAR
 ) RETURNS INTEGER AS
@@ -1153,7 +1191,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO editors(MAIN_WORKER_ID, POSITION) VALUES(mw_id, pos::EDITOR_POSITIONS) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
 END
@@ -1181,7 +1219,6 @@ CREATE OR REPLACE FUNCTION add_artist(
     name VARCHAR,
     second_name VARCHAR,
     gender VARCHAR,
-    age INTEGER,
     place_of_birth TEXT,
     artist_type VARCHAR,
     using_technology VARCHAR
@@ -1191,7 +1228,7 @@ DECLARE
     mw_id INTEGER;
     w_id INTEGER;
 BEGIN
-    INSERT INTO workers(NAME, SECOND_NAME, GENDER, AGE, PLACE_OF_BIRTH) VALUES(name, second_name, gender, age, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
+    INSERT INTO workers(NAME, SECOND_NAME, GENDER, PLACE_OF_BIRTH) VALUES(name, second_name, gender, place_of_birth) RETURNING MAIN_WORKER_ID INTO mw_id;
     INSERT INTO artists(MAIN_WORKER_ID, ARTIST_TYPE, USING_TECHNOLOGY) 
     VALUES(mw_id, artist_type::ARTIST_TYPES, using_technology::USING_TECHNOLOGIES) RETURNING WORKER_ID INTO w_id;
     RETURN w_id;
@@ -2084,6 +2121,9 @@ $$
 BEGIN
     INSERT INTO process_artifact(ARTIFACT_ID, MAIN_PROCESS_ID) VALUES(artifact_id, main_process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2098,6 +2138,9 @@ $$
 BEGIN
     INSERT INTO event_location(LOCATION_ID, EVENT_ID) VALUES(location_id, event_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2109,6 +2152,9 @@ $$
 BEGIN
     INSERT INTO events_plots(EVENT_ID, PLOT_ID) VALUES(event_id, plot_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2120,6 +2166,9 @@ $$
 BEGIN
     INSERT INTO events_characters(EVENT_ID, CHARACTER_ID) VALUES(event_id, character_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2131,6 +2180,9 @@ $$
 BEGIN
     INSERT INTO battle_location(LOCATION_ID, BATTLE_ID) VALUES(location_id, battle_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2142,6 +2194,9 @@ $$
 BEGIN
     INSERT INTO battle_abilities(BATTLE_ID, ABILITY_ID) VALUES(battle_id, ability_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2153,6 +2208,9 @@ $$
 BEGIN
     INSERT INTO battle_characters(BATTLE_ID, CHARACTER_ID) VALUES(battle_id, character_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2164,6 +2222,9 @@ $$
 BEGIN
     INSERT INTO characters_abilities(ABILITY_ID, CHARACTER_ID) VALUES(ability_id, character_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2178,6 +2239,9 @@ $$
 BEGIN
     INSERT INTO artist_storyboard_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2189,6 +2253,9 @@ $$
 BEGIN
     INSERT INTO producer_advertising_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2200,6 +2267,9 @@ $$
 BEGIN
     INSERT INTO audio_adding_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2211,6 +2281,9 @@ $$
 BEGIN
     INSERT INTO digitizers_digitization_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2222,6 +2295,9 @@ $$
 BEGIN
     INSERT INTO smoother_smoothing_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2233,6 +2309,9 @@ $$
 BEGIN
     INSERT INTO art_director_revision_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2244,6 +2323,9 @@ $$
 BEGIN
     INSERT INTO artist_coloring_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2255,6 +2337,9 @@ $$
 BEGIN
     INSERT INTO artist_animation_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2266,6 +2351,9 @@ $$
 BEGIN
     INSERT INTO artist_effects_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2277,6 +2365,9 @@ $$
 BEGIN
     INSERT INTO artist_location_drawing_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2288,6 +2379,9 @@ $$
 BEGIN
     INSERT INTO artist_battle_drawing_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2299,6 +2393,9 @@ $$
 BEGIN
     INSERT INTO artist_character_drawing_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2310,6 +2407,9 @@ $$
 BEGIN
     INSERT INTO editors_character_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2321,6 +2421,9 @@ $$
 BEGIN
     INSERT INTO recorder_voice_acting_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2332,6 +2435,9 @@ $$
 BEGIN
     INSERT INTO designer_ability_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2343,6 +2449,9 @@ $$
 BEGIN
     INSERT INTO designer_character_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2354,6 +2463,9 @@ $$
 BEGIN
     INSERT INTO regisseur_location_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2365,6 +2477,9 @@ $$
 BEGIN
     INSERT INTO regisseurs_plot_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2376,6 +2491,9 @@ $$
 BEGIN
     INSERT INTO screenwriter_battle_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2387,6 +2505,9 @@ $$
 BEGIN
     INSERT INTO screenwriter_plot_process(WORKER_ID, PROCESS_ID) VALUES(worker_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2401,6 +2522,9 @@ $$
 BEGIN
     INSERT INTO revision_storyboarding(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2412,6 +2536,9 @@ $$
 BEGIN
     INSERT INTO revision_adding_sound(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2423,6 +2550,9 @@ $$
 BEGIN
     INSERT INTO revision_smoothing(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2434,6 +2564,9 @@ $$
 BEGIN
     INSERT INTO revision_adding_effects(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2445,6 +2578,9 @@ $$
 BEGIN
     INSERT INTO revision_animation(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2456,6 +2592,9 @@ $$
 BEGIN
     INSERT INTO revision_coloring(REVISION_ID, PROCESS_ID) VALUES(revision_id, process_id);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
 
@@ -2595,15 +2734,16 @@ CREATE OR REPLACE FUNCTION add_user(
     main_worker_id INTEGER,
     login VARCHAR,
     user_password VARCHAR,
-    salt VARCHAR,
     email VARCHAR,
+    avatar_file_link TEXT,
     last_log_out DATE
 ) RETURNS INTEGER AS
 $$
 DECLARE
     u_id INTEGER;
 BEGIN
-    INSERT INTO users(MAIN_WORKER_ID, LOGIN, USER_PASSWORD, SALT, EMAIL, LAST_LOG_OUT) VALUES(main_worker_id, login, user_password, salt, email, last_log_out) RETURNING USER_ID INTO u_id;
+    INSERT INTO users(MAIN_WORKER_ID, LOGIN, USER_PASSWORD, EMAIL, AVATAR_FILE_LINK, LAST_LOG_OUT) 
+    VALUES(main_worker_id, login, user_password, email, avatar_file_link, last_log_out) RETURNING USER_ID INTO u_id;
     RETURN u_id;
 EXCEPTION
   WHEN unique_violation THEN
@@ -2633,6 +2773,9 @@ $$
 BEGIN
     INSERT INTO users_roles(USER_ID, ROLE_VALUE) VALUES(user_id, user_role);
     RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
 END
 $$
 LANGUAGE plpgsql VOLATILE;
@@ -2641,6 +2784,17 @@ CREATE OR REPLACE FUNCTION delete_users_role(role_value VARCHAR) RETURNS BOOLEAN
 $$
 BEGIN
     DELETE FROM users_roles WHERE ROLE_VALUE = role_value;
+    RETURN TRUE;
+END
+$$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION update_last_log_out(
+    login VARCHAR,
+    last_log_out DATE
+) RETURNS BOOLEAN AS
+$$
+BEGIN
+    UPDATE users u SET u.LAST_LOG_OUT = last_log_out WHERE u.LOGIN = login;
     RETURN TRUE;
 END
 $$ LANGUAGE plpgsql VOLATILE;
