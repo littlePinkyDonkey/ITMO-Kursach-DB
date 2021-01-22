@@ -161,6 +161,19 @@ CREATE TABLE users_roles(
     ROLE_VALUE VARCHAR(32) REFERENCES roles(ROLE_VALUE) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+insert into roles values('ROLE_ART_DIRECTOR');
+insert into roles values('ROLE_ARTIST');
+insert into roles values('ROLE_AUDIO_SPECIALIST');
+insert into roles values('ROLE_DIGITIZER');
+insert into roles values('ROLE_EDITOR');
+insert into roles values('ROLE_PRODUCER');
+insert into roles values('ROLE_RECORDING_ACTOR');
+insert into roles values('ROLE_REGISSEUR');
+insert into roles values('ROLE_ROLES_DESIGNER');
+insert into roles values('ROLE_SCREENWRITER');
+insert into roles values('ROLE_SMOOTHING_SPECIALIST');
+insert into roles values('ROLE_STORYBOARD_ARTIST');
+
 /*
 *сущность процессы и все её характеристические сущности
 */
