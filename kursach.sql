@@ -174,11 +174,61 @@ insert into roles values('ROLE_SCREENWRITER');
 insert into roles values('ROLE_SMOOTHING_SPECIALIST');
 insert into roles values('ROLE_STORYBOARD_ARTIST');
 
+
+/*
+*создание сущности продукт
+*/
+CREATE TABLE products(
+    PRODUCT_ID SERIAL PRIMARY KEY,
+    POSTER_PATH TEXT,
+    DESCRIPTION TEXT,
+    PRODUCT_NAME VARCHAR(32),
+    AUTHOR_NAME VARCHAR(64)
+);
+
+CREATE TABLE users_products(
+    USER_ID INTEGER REFERENCES users(USER_ID) ON UPDATE CASCADE ON DELETE SET NULL,
+    PRODUCT_ID INTEGER REFERENCES products(PRODUCT_ID) ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+CREATE OR REPLACE FUNCTION create_product(
+    poster_path TEXT,
+    description TEXT,
+    product_name VARCHAR,
+    author_name VARCHAR
+) RETURNS INTEGER AS
+$$
+DECLARE
+    prod_id INTEGER;
+BEGIN
+    INSERT INTO products(POSTER_PATH, DESCRIPTION, PRODUCT_NAME, AUTHOR_NAME) VALUES(poster_path, description, product_name, author_name) RETURNING PRODUCT_ID INTO prod_id;
+    RETURN prod_id;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN -2;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION associate_product_and_user(
+    product_id INTEGER,
+    user_id INTEGER
+) RETURNS BOOLEAN AS 
+$$
+BEGIN
+    INSERT INTO users_products(USER_ID, PRODUCT_ID) VALUES(user_id, product_id);
+    RETURN TRUE;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN FALSE;
+END
+$$ LANGUAGE plpgsql;
+
 /*
 *сущность процессы и все её характеристические сущности
 */
 CREATE TABLE processes(
     MAIN_PROCESS_ID SERIAL,
+    PRODUCT_ID INTEGER REFERENCES products(PRODUCT_ID) ON UPDATE CASCADE ON DELETE SET NULL,
     DURATION INTEGER NOT NULL,
     DEADLINE_DATE TIMESTAMP NOT NULL,
     DESCRIPTION TEXT NOT NULL,
@@ -389,53 +439,7 @@ CREATE INDEX artifact_type_upload_date_idx ON artifacts (ARTIFACT_TYPE, UPLOAD_D
 *создание сущности история
 */
 
-/*
-*создание сущности продукт
-*/
-CREATE TABLE products(
-    PRODUCT_ID SERIAL PRIMARY KEY,
-    POSTER_PATH TEXT,
-    DESCRIPTION TEXT,
-    PRODUCT_NAME VARCHAR(32),
-    AUTHOR_NAME VARCHAR(64)
-);
 
-CREATE TABLE users_products(
-    USER_ID INTEGER REFERENCES users(USER_ID) ON UPDATE CASCADE ON DELETE SET NULL,
-    PRODUCT_ID INTEGER REFERENCES products(PRODUCT_ID) ON UPDATE CASCADE ON DELETE SET NULL
-);
-
-CREATE OR REPLACE FUNCTION create_product(
-    poster_path TEXT,
-    description TEXT,
-    product_name VARCHAR,
-    author_name VARCHAR
-) RETURNS INTEGER AS
-$$
-DECLARE
-    prod_id INTEGER;
-BEGIN
-    INSERT INTO products(POSTER_PATH, DESCRIPTION, PRODUCT_NAME, AUTHOR_NAME) VALUES(poster_path, description, product_name, author_name) RETURNING PRODUCT_ID INTO prod_id;
-    RETURN prod_id;
-EXCEPTION
-  WHEN foreign_key_violation THEN
-    RETURN -2;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION associate_product_and_user(
-    product_id INTEGER,
-    user_id INTEGER
-) RETURNS BOOLEAN AS 
-$$
-BEGIN
-    INSERT INTO users_products(USER_ID, PRODUCT_ID) VALUES(user_id, product_id);
-    RETURN TRUE;
-EXCEPTION
-  WHEN foreign_key_violation THEN
-    RETURN FALSE;
-END
-$$ LANGUAGE plpgsql;
 
 /*
 *создание основных стержневых сущностей
@@ -1272,6 +1276,7 @@ $$ LANGUAGE plpgsql VOLATILE;
 *функции для добавления и создания процессов
 */
 CREATE OR REPLACE FUNCTION create_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1282,13 +1287,14 @@ $$
 DECLARE
     mp_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     RETURN mp_id;
 END
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION create_storyboard_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1301,8 +1307,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO storyboard_process(MAIN_PROCESS_ID, FRAME_NUMBER) VALUES(mp_id, frame_number) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1327,6 +1333,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_advertising_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1339,8 +1346,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO advertising_process(MAIN_PROCESS_ID, INSERTION_LOCATION) VALUES(mp_id, insertion_location::INSERTION_LOCATIONS) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1365,6 +1372,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_adding_sound_effect_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1377,8 +1385,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO adding_sound_process(MAIN_PROCESS_ID, SOUND_TYPE) VALUES(mp_id, sound_type::SOUND_TYPES) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1403,6 +1411,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_digitization_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1416,8 +1425,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO digitization_process(MAIN_PROCESS_ID, SKETCHES_NUMBER, DIGITIZATION_TYPE) VALUES(mp_id, sketches_number, digitization_type::DIGITIZATION_TYPES) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1444,6 +1453,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_smoothing_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1455,8 +1465,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO smoothing_process(MAIN_PROCESS_ID) VALUES(mp_id) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1480,6 +1490,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_revision_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1492,8 +1503,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO revisions_process(MAIN_PROCESS_ID, REVISION_TYPE) VALUES(mp_id, revision_type::REVISION_TYPES) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1518,6 +1529,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_coloring_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1530,8 +1542,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO coloring_process(MAIN_PROCESS_ID, COLORING_TYPE) VALUES(mp_id, coloring_type::COLORING_TYPES) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1556,6 +1568,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_animation_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1569,8 +1582,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO animation_process(MAIN_PROCESS_ID, frame_rate, animation_technology) VALUES(mp_id, frame_rate, animation_technology) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1596,6 +1609,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_adding_effect_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1608,8 +1622,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO adding_effect_process(MAIN_PROCESS_ID, EFFECT_LEVEL) VALUES(mp_id, effect_level::EFFECT_LEVELS) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1634,6 +1648,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_location_drawing_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1645,8 +1660,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO location_drawing_process(MAIN_PROCESS_ID) VALUES(mp_id) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1670,6 +1685,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_battle_drawing_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1681,8 +1697,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO battle_drawing_process(MAIN_PROCESS_ID) VALUES(mp_id) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1706,6 +1722,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_character_drawing_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1717,8 +1734,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO character_drawing_process(MAIN_PROCESS_ID) VALUES(mp_id) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1742,6 +1759,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_character_select_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1753,8 +1771,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO character_select_process(MAIN_PROCESS_ID) VALUES(mp_id) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1778,6 +1796,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_voice_acting_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1790,8 +1809,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO voice_acting_process(MAIN_PROCESS_ID, VOICE_ACTING_TYPE) VALUES(mp_id, voice_acting_type::VOICE_ACTING_TYPES) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1816,6 +1835,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_ability_description_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1827,8 +1847,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO ability_description_process(MAIN_PROCESS_ID) VALUES(mp_id) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1852,6 +1872,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_character_description_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1863,8 +1884,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO character_description_process(MAIN_PROCESS_ID) VALUES(mp_id) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1888,6 +1909,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_location_description_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1899,8 +1921,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO location_description_process(MAIN_PROCESS_ID) VALUES(mp_id) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1924,6 +1946,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_battle_description_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1935,8 +1958,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO battle_description_process(MAIN_PROCESS_ID) VALUES(mp_id) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
@@ -1960,6 +1983,7 @@ END
 $$ LANGUAGE plpgsql VOLATILE;
 
 CREATE OR REPLACE FUNCTION create_plot_process(
+    product_id INTEGER,
     duration INTEGER,
     deadline_date TIMESTAMP,
     description TEXT,
@@ -1971,8 +1995,8 @@ DECLARE
     mp_id INTEGER;
     p_id INTEGER;
 BEGIN
-    INSERT INTO processes(DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
-    VALUES(duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
+    INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
+    VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     INSERT INTO plot_process(MAIN_PROCESS_ID) VALUES(mp_id) RETURNING PROCESS_ID INTO p_id;
     RETURN p_id;
 END
