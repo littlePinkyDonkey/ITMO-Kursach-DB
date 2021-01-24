@@ -1290,6 +1290,9 @@ BEGIN
     INSERT INTO processes(PRODUCT_ID, DURATION, DEADLINE_DATE, DESCRIPTION, STATUS, START_DATE) 
     VALUES(product_id, duration, deadline_date, description, status::PROCESS_STATUS, start_date) RETURNING MAIN_PROCESS_ID INTO mp_id;
     RETURN mp_id;
+EXCEPTION
+  WHEN foreign_key_violation THEN
+    RETURN -2;
 END
 $$ LANGUAGE plpgsql;
 
